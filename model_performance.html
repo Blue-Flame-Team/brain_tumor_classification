@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداء النموذج ونتائجه</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap");
+      
+      body {
+        font-family: "Tajawal", sans-serif;
+        direction: rtl;
+        text-align: right;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0A2463;
+        color: #FFFFFF;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      
+      .subtitle {
+        font-size: 24px;
+        font-weight: 500;
+        color: #3E92CC;
+      }
+      
+      .content-text {
+        font-size: 20px;
+        line-height: 1.6;
+      }
+      
+      .network-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: 0;
+      }
+      
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .highlight {
+        color: #8F3985;
+        font-weight: 500;
+      }
+      
+      .metric-box {
+        background-color: rgba(62, 146, 204, 0.2);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+      
+      .metric-box:hover {
+        background-color: rgba(143, 57, 133, 0.2);
+      }
+      
+      .metric-value {
+        font-size: 36px;
+        font-weight: 700;
+        color: #FFFFFF;
+      }
+      
+      .metric-label {
+        font-size: 18px;
+        color: #3E92CC;
+      }
+      
+      .comparison-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      
+      .comparison-icon {
+        color: #3E92CC;
+        font-size: 24px;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container flex flex-col p-10">
+      <div class="network-bg">
+        <!-- Background network pattern will be created with D3.js -->
+      </div>
+      
+      <div class="content w-full h-full flex flex-col">
+        <h1 class="title mb-3 text-center">أداء النموذج ونتائجه</h1>
+        
+        <div class="flex mb-4 justify-evenly">
+          <div class="metric-box w-1/4">
+            <div class="metric-value">97.2%</div>
+            <div class="metric-label">الدقة الكلية</div>
+          </div>
+          
+          <div class="metric-box w-1/4">
+            <div class="metric-value">96.8%</div>
+            <div class="metric-label">الحساسية</div>
+          </div>
+          
+          <div class="metric-box w-1/4">
+            <div class="metric-value">97.5%</div>
+            <div class="metric-label">الخصوصية</div>
+          </div>
+          
+          <div class="metric-box w-1/4">
+            <div class="metric-value">96.9%</div>
+            <div class="metric-label">قيمة F1</div>
+          </div>
+        </div>
+        
+        <div class="flex flex-grow justify-evenly">
+          <div class="w-1/2 pr-6">
+            <h2 class="subtitle mb-2">مقارنة مع الطرق التقليدية</h2>
+            
+            <div class="comparison-item">
+              <i class="fas fa-clock comparison-icon"></i>
+              <div>
+                <h3 class="text-xl font-bold text-white">وقت التشخيص</h3>
+                <p class="content-text">تقليل وقت التشخيص من <span class="highlight">30-60 دقيقة</span> إلى <span class="highlight">أقل من 10 ثوانٍ</span>.</p>
+              </div>
+            </div>
+            
+            <div class="comparison-item">
+              <i class="fas fa-user-md comparison-icon"></i>
+              <div>
+                <h3 class="text-xl font-bold text-white">الاعتماد على الخبرة</h3>
+                <p class="content-text">تقليل الاعتماد على خبرة الأطباء المتخصصين، مما يتيح التشخيص في المناطق النائية.</p>
+              </div>
+            </div>
+            
+            <div class="comparison-item">
+              <i class="fas fa-chart-line comparison-icon"></i>
+              <div>
+                <h3 class="text-xl font-bold text-white">تحسين الدقة</h3>
+                <p class="content-text">زيادة دقة التشخيص بنسبة <span class="highlight">15-20%</span> مقارنة بالطرق التقليدية.</p>
+              </div>
+            </div>
+            
+            <h2 class="subtitle mt-4 mb-2">أمثلة على حالات ناجحة</h2>
+            <p class="content-text">
+              تم اختبار النموذج على <span class="highlight">500</span> حالة سريرية في <span class="highlight">3</span> مستشفيات مختلفة، مع تحقيق نتائج متسقة ودقيقة في تشخيص أنواع الأورام المختلفة.
+            </p>
+          </div>
+          
+          <div class="w-1/2">
+            <div style="height: 350px;">
+              <canvas id="confusionMatrix"></canvas>
+            </div>
+            
+            <div class="bg-opacity-20 bg-blue-500 p-4 rounded-lg mt-4">
+              <h2 class="subtitle mb-2">دقة تشخيص كل نوع</h2>
+              <ul class="content-text list-disc list-inside">
+                <li>الورم الدبقي: <span class="highlight">98.1%</span></li>
+                <li>الورم السحائي: <span class="highlight">96.5%</span></li>
+                <li>الورم النخامي: <span class="highlight">97.0%</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Create network background
+      const svg = d3.select(".network-bg")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
+      
+      // Generate random nodes
+      const nodes = Array.from({ length: 50 }, () => ({
+        x: Math.random() * 1280,
+        y: Math.random() * 720,
+        r: Math.random() * 3 + 1
+      }));
+      
+      // Draw nodes
+      svg.selectAll("circle")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.r)
+        .attr("fill", "#3E92CC");
+      
+      // Generate random connections
+      const links = [];
+      nodes.forEach((source, i) => {
+        const numLinks = Math.floor(Math.random() * 3);
+        for (let j = 0; j < numLinks; j++) {
+          const target = nodes[Math.floor(Math.random() * nodes.length)];
+          if (target !== source) {
+            links.push({ source, target });
+          }
+        }
+      });
+      
+      // Draw connections
+      svg.selectAll("line")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y)
+        .attr("stroke", "#3E92CC")
+        .attr("stroke-width", 0.5);
+      
+      // Create confusion matrix chart
+      const ctx = document.getElementById("confusionMatrix").getContext("2d");
+      const confusionMatrix = new Chart(ctx, {
+        type: "matrix",
+        data: {
+          datasets: [{
+            label: "مصفوفة الارتباك",
+            data: [
+              { x: "الورم الدبقي", y: "الورم الدبقي", v: 98 },
+              { x: "الورم الدبقي", y: "الورم السحائي", v: 1 },
+              { x: "الورم الدبقي", y: "الورم النخامي", v: 1 },
+              { x: "الورم السحائي", y: "الورم الدبقي", v: 2 },
+              { x: "الورم السحائي", y: "الورم السحائي", v: 96 },
+              { x: "الورم السحائي", y: "الورم النخامي", v: 2 },
+              { x: "الورم النخامي", y: "الورم الدبقي", v: 1 },
+              { x: "الورم النخامي", y: "الورم السحائي", v: 2 },
+              { x: "الورم النخامي", y: "الورم النخامي", v: 97 }
+            ],
+            backgroundColor(context) {
+              const value = context.dataset.data[context.dataIndex].v;
+              const alpha = value / 100;
+              return value > 90 ? `rgba(143, 57, 133, ${alpha})` : `rgba(62, 146, 204, ${alpha})`;
+            },
+            borderColor: "#FFFFFF",
+            borderWidth: 1,
+            width: ({ chart }) => (chart.chartArea || {}).width / 3 - 1,
+            height: ({ chart }) => (chart.chartArea || {}).height / 3 - 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: "category",
+              labels: ["الورم الدبقي", "الورم السحائي", "الورم النخامي"],
+              ticks: {
+                color: "#FFFFFF"
+              },
+              title: {
+                display: true,
+                text: "القيمة الحقيقية",
+                color: "#FFFFFF"
+              }
+            },
+            y: {
+              type: "category",
+              labels: ["الورم الدبقي", "الورم السحائي", "الورم النخامي"],
+              ticks: {
+                color: "#FFFFFF"
+              },
+              title: {
+                display: true,
+                text: "القيمة المتوقعة",
+                color: "#FFFFFF"
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            title: {
+              display: true,
+              text: "مصفوفة الارتباك (النسبة المئوية)",
+              color: "#FFFFFF",
+              font: {
+                size: 16
+              }
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+

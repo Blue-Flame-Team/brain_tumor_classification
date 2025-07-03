@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل النموذج وهيكله</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap");
+      
+      body {
+        font-family: "Tajawal", sans-serif;
+        direction: rtl;
+        text-align: right;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0A2463;
+        color: #FFFFFF;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      
+      .subtitle {
+        font-size: 24px;
+        font-weight: 500;
+        color: #3E92CC;
+      }
+      
+      .content-text {
+        font-size: 20px;
+        line-height: 1.6;
+      }
+      
+      .network-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: 0;
+      }
+      
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .highlight {
+        color: #8F3985;
+        font-weight: 500;
+      }
+      
+      .layer-box {
+        border: 1px solid #3E92CC;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: rgba(62, 146, 204, 0.1);
+      }
+      
+      .code-block {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 5px;
+        padding: 10px;
+        font-family: monospace;
+        font-size: 16px;
+        color: #FFFFFF;
+        direction: ltr;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container flex flex-col p-10">
+      <div class="network-bg">
+        <!-- Background network pattern will be created with D3.js -->
+      </div>
+      
+      <div class="content w-full h-full flex flex-col">
+        <h1 class="title mb-3 text-center">تفاصيل النموذج وهيكله</h1>
+        
+        <div class="flex flex-grow justify-evenly">
+          <div class="w-1/2 pr-6">
+            <h2 class="subtitle mb-2">الطبقات الرئيسية</h2>
+            
+            <div class="layer-box">
+              <h3 class="text-xl font-bold text-white">طبقة الإدخال</h3>
+              <p class="content-text">حجم الإدخال: <span class="highlight">224×224×3</span> بكسل</p>
+            </div>
+            
+            <div class="layer-box">
+              <h3 class="text-xl font-bold text-white">النموذج الأساسي</h3>
+              <p class="content-text">MobileNetV2 مع <span class="highlight">1280</span> ميزة مستخرجة</p>
+            </div>
+            
+            <div class="layer-box">
+              <h3 class="text-xl font-bold text-white">طبقات التصنيف المخصصة</h3>
+              <ul class="content-text list-disc list-inside">
+                <li>طبقة تجميع عالمية (Global Average Pooling)</li>
+                <li>طبقة تطبيع الدفعة (Batch Normalization)</li>
+                <li>طبقة كثيفة: <span class="highlight">128</span> عقدة</li>
+                <li>طبقة تسريب (Dropout): <span class="highlight">0.3</span></li>
+                <li>طبقة كثيفة: <span class="highlight">64</span> عقدة</li>
+                <li>طبقة تسريب (Dropout): <span class="highlight">0.3</span></li>
+                <li>طبقة الإخراج: <span class="highlight">3</span> عقد (أنواع الأورام)</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="w-1/2 flex flex-col">
+            <h2 class="subtitle mb-2">عملية التدريب والتحقق</h2>
+            <div class="mb-3">
+              <ul class="content-text list-disc list-inside">
+                <li>مجموعة البيانات: <span class="highlight">3000</span> صورة رنين مغناطيسي</li>
+                <li>نسبة التقسيم: <span class="highlight">80%</span> تدريب، <span class="highlight">20%</span> تحقق</li>
+                <li>دالة الخسارة: <span class="highlight">Categorical Cross-Entropy</span></li>
+                <li>المحسن: <span class="highlight">Adam</span> بمعدل تعلم <span class="highlight">0.0001</span></li>
+                <li>عدد الحقب: <span class="highlight">50</span> حقبة</li>
+                <li>حجم الدفعة: <span class="highlight">32</span></li>
+                <li>تقنيات تعزيز البيانات: تدوير، تكبير/تصغير، إزاحة</li>
+              </ul>
+            </div>
+            
+            <h2 class="subtitle mb-2">مقتطف من كود النموذج</h2>
+            <div class="code-block">
+# Base model (MobileNetV2)
+base_model = MobileNetV2(
+    input_shape=(224, 224, 3),
+    include_top=False,
+    weights=\'imagenet\'
+)
+
+# Custom classification layers
+x = base_model.output
+x = GlobalAveragePooling2D()(x)
+x = BatchNormalization()(x)
+x = Dense(128, activation=\'relu\')(x)
+x = Dropout(0.3)(x)
+x = Dense(64, activation=\'relu\')(x)
+x = Dropout(0.3)(x)
+predictions = Dense(3, activation=\'softmax\')(x)
+
+# Final model
+model = Model(
+    inputs=base_model.input,
+    outputs=predictions
+)
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-3" style="height: 250px;">
+          <canvas id="trainingChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Create network background
+      const svg = d3.select(".network-bg")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
+      
+      // Generate random nodes
+      const nodes = Array.from({ length: 50 }, () => ({
+        x: Math.random() * 1280,
+        y: Math.random() * 720,
+        r: Math.random() * 3 + 1
+      }));
+      
+      // Draw nodes
+      svg.selectAll("circle")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.r)
+        .attr("fill", "#3E92CC");
+      
+      // Generate random connections
+      const links = [];
+      nodes.forEach((source, i) => {
+        const numLinks = Math.floor(Math.random() * 3);
+        for (let j = 0; j < numLinks; j++) {
+          const target = nodes[Math.floor(Math.random() * nodes.length)];
+          if (target !== source) {
+            links.push({ source, target });
+          }
+        }
+      });
+      
+      // Draw connections
+      svg.selectAll("line")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y)
+        .attr("stroke", "#3E92CC")
+        .attr("stroke-width", 0.5);
+      
+      // Create training history chart
+      const ctx = document.getElementById("trainingChart").getContext("2d");
+      const trainingChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50"],
+          datasets: [
+            {
+              label: "دقة التدريب",
+              data: [0.45, 0.68, 0.78, 0.85, 0.89, 0.91, 0.93, 0.94, 0.95, 0.96, 0.97],
+              borderColor: "#3E92CC",
+              backgroundColor: "rgba(62, 146, 204, 0.1)",
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: "دقة التحقق",
+              data: [0.42, 0.65, 0.74, 0.80, 0.84, 0.87, 0.89, 0.91, 0.92, 0.93, 0.94],
+              borderColor: "#8F3985",
+              backgroundColor: "rgba(143, 57, 133, 0.1)",
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 1,
+              grid: {
+                color: "rgba(255, 255, 255, 0.1)"
+              },
+              ticks: {
+                color: "#FFFFFF"
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: "الحقب (Epochs)",
+                color: "#FFFFFF"
+              },
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: "#FFFFFF"
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: "#FFFFFF"
+              }
+            },
+            title: {
+              display: true,
+              text: "تاريخ التدريب",
+              color: "#FFFFFF",
+              font: {
+                size: 16
+              }
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+

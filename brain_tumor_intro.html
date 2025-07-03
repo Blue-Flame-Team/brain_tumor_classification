@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مقدمة عن أورام الدماغ</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap");
+      
+      body {
+        font-family: "Tajawal", sans-serif;
+        direction: rtl;
+        text-align: right;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0A2463;
+        color: #FFFFFF;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      
+      .subtitle {
+        font-size: 24px;
+        font-weight: 500;
+        color: #3E92CC;
+      }
+      
+      .content-text {
+        font-size: 20px;
+        line-height: 1.6;
+      }
+      
+      .network-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: 0;
+      }
+      
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .highlight {
+        color: #8F3985;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container flex flex-col p-10">
+      <div class="network-bg">
+        <!-- Background network pattern will be created with D3.js -->
+      </div>
+      
+      <div class="content w-full h-full flex flex-col">
+        <h1 class="title mb-4 text-center">مقدمة عن أورام الدماغ</h1>
+        
+        <div class="flex flex-grow justify-evenly">
+          <div class="w-1/2 pr-6">
+            <h2 class="subtitle mb-3">ما هي أورام الدماغ؟</h2>
+            <p class="content-text mb-4">
+              أورام الدماغ هي نمو غير طبيعي للخلايا داخل الدماغ أو في الأنسجة المحيطة به. يمكن أن تكون حميدة (غير سرطانية) أو خبيثة (سرطانية).
+            </p>
+            
+            <h2 class="subtitle mb-3">الإحصائيات والأهمية الطبية</h2>
+            <ul class="content-text mb-4 list-disc list-inside">
+              <li>يتم تشخيص أكثر من <span class="highlight">300,000</span> حالة ورم دماغي سنوياً</li>
+              <li>تمثل أورام الدماغ <span class="highlight">2-3%</span> من جميع أنواع السرطانات</li>
+              <li>التشخيص المبكر يزيد فرص العلاج الناجح بنسبة <span class="highlight">70%</span></li>
+            </ul>
+          </div>
+          
+          <div class="w-1/2 flex flex-col">
+            <div class="mb-4">
+              <img src="/static/presentation_images/brain_tumor_detailed.jpg" alt="صورة توضيحية لأورام الدماغ" style="width: 450px; height: auto; border-radius: 8px;">
+            </div>
+            
+            <div>
+              <h2 class="subtitle mb-3">تحديات التشخيص التقليدي</h2>
+              <ul class="content-text list-disc list-inside">
+                <li>صعوبة تمييز أنواع الأورام المختلفة في صور الأشعة</li>
+                <li>الحاجة إلى خبرة متخصصة عالية للتشخيص الدقيق</li>
+                <li>استهلاك وقت طويل في تحليل صور الرنين المغناطيسي</li>
+                <li>تباين التفسيرات بين الأطباء المختلفين</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-4" style="height: 250px;">
+          <canvas id="survivalChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Create network background
+      const svg = d3.select(".network-bg")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
+      
+      // Generate random nodes
+      const nodes = Array.from({ length: 50 }, () => ({
+        x: Math.random() * 1280,
+        y: Math.random() * 720,
+        r: Math.random() * 3 + 1
+      }));
+      
+      // Draw nodes
+      svg.selectAll("circle")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.r)
+        .attr("fill", "#3E92CC");
+      
+      // Generate random connections
+      const links = [];
+      nodes.forEach((source, i) => {
+        const numLinks = Math.floor(Math.random() * 3);
+        for (let j = 0; j < numLinks; j++) {
+          const target = nodes[Math.floor(Math.random() * nodes.length)];
+          if (target !== source) {
+            links.push({ source, target });
+          }
+        }
+      });
+      
+      // Draw connections
+      svg.selectAll("line")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y)
+        .attr("stroke", "#3E92CC")
+        .attr("stroke-width", 0.5);
+      
+      // Create survival rate chart
+      const ctx = document.getElementById("survivalChart").getContext("2d");
+      const survivalChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["الورم الدبقي منخفض الدرجة", "الورم السحائي", "الورم النخاعي", "الورم الدبقي متعدد الأشكال", "الورم الدبقي عالي الدرجة"],
+          datasets: [{
+            label: "معدل البقاء على قيد الحياة لمدة 5 سنوات (%)",
+            data: [75, 70, 65, 50, 36],
+            backgroundColor: [
+              "#3E92CC",
+              "#3E92CC",
+              "#3E92CC",
+              "#8F3985",
+              "#8F3985"
+            ],
+            borderColor: [
+              "#FFFFFF",
+              "#FFFFFF",
+              "#FFFFFF",
+              "#FFFFFF",
+              "#FFFFFF"
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              beginAtZero: true,
+              max: 100,
+              grid: {
+                color: "rgba(255, 255, 255, 0.1)"
+              },
+              ticks: {
+                color: "#FFFFFF"
+              }
+            },
+            y: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: "#FFFFFF"
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: "#FFFFFF"
+              }
+            },
+            title: {
+              display: true,
+              text: "معدل البقاء على قيد الحياة حسب نوع الورم",
+              color: "#FFFFFF",
+              font: {
+                size: 16
+              }
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+

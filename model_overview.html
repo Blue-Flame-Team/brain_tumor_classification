@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظرة عامة على النموذج المستخدم</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap");
+      
+      body {
+        font-family: "Tajawal", sans-serif;
+        direction: rtl;
+        text-align: right;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0A2463;
+        color: #FFFFFF;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      
+      .subtitle {
+        font-size: 24px;
+        font-weight: 500;
+        color: #3E92CC;
+      }
+      
+      .content-text {
+        font-size: 20px;
+        line-height: 1.6;
+      }
+      
+      .network-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: 0;
+      }
+      
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .highlight {
+        color: #8F3985;
+        font-weight: 500;
+      }
+      
+      .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      
+      .feature-icon {
+        color: #3E92CC;
+        font-size: 24px;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <div class="network-bg">
+        <!-- Background network pattern will be created with D3.js -->
+      </div>
+      
+      <div class="content">
+        <h1 class="title text-center">نظرة عامة على النموذج المستخدم</h1>
+        
+        <div class="grid grid-2">
+          <div class="section">
+            <h2 class="subtitle">بنية النموذج (MobileNetV2)</h2>
+            <p class="content-text">
+              النموذج يعتمد على بنية <span class="highlight">MobileNetV2</span> كنموذج أساسي مع تعديلات خاصة لتشخيص أورام الدماغ. تم اختيار هذه البنية لكفاءتها العالية وحجمها المناسب للتطبيقات الطبية.
+            </p>
+            
+            <h2 class="subtitle">مميزات النموذج المختار</h2>
+            
+            <div class="card">
+              <div class="feature-item">
+                <i class="fas fa-bolt icon"></i>
+                <div>
+                  <h3 class="text-xl font-bold">كفاءة حسابية عالية</h3>
+                  <p>عدد معلمات أقل مع الحفاظ على الدقة العالية.</p>
+                </div>
+              </div>
+              
+              <div class="feature-item">
+                <i class="fas fa-mobile-alt icon"></i>
+                <div>
+                  <h3 class="text-xl font-bold">خفيف الوزن</h3>
+                  <p>مناسب للتشغيل على الأجهزة الطبية المحمولة والأنظمة ذات الموارد المحدودة.</p>
+                </div>
+              </div>
+              
+              <div class="feature-item">
+                <i class="fas fa-brain icon"></i>
+                <div>
+                  <h3 class="text-xl font-bold">تخصيص للصور الطبية</h3>
+                  <p>تم تعديل الطبقات النهائية لتناسب خصائص صور الرنين المغناطيسي للدماغ.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="section">
+            <div class="image-container">
+              <img src="presentation_images/model_architecture.png" alt="بنية نموذج MobileNetV2" class="w-[450px]">
+            </div>
+            
+            <div class="card">
+              <h2 class="subtitle">المواصفات التقنية</h2>
+              <ul class="list-disc list-inside">
+                <li>مدخلات الصور: <span class="highlight">224×224×3</span> بكسل</li>
+                <li>عدد الطبقات: <span class="highlight">53</span> طبقة</li>
+                <li>إجمالي المعلمات: <span class="highlight">2.4</span> مليون</li>
+                <li>المعلمات القابلة للتدريب: <span class="highlight">1.4</span> مليون</li>
+                <li>عدد فئات التصنيف: <span class="highlight">3</span> (الورم الدبقي، الورم السحائي، الورم النخامي)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="parameterChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Create network background
+      const svg = d3.select(".network-bg")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
+      
+      // Generate random nodes
+      const nodes = Array.from({ length: 50 }, () => ({
+        x: Math.random() * 1280,
+        y: Math.random() * 720,
+        r: Math.random() * 3 + 1
+      }));
+      
+      // Draw nodes
+      svg.selectAll("circle")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.r)
+        .attr("fill", "var(--secondary-color)");
+      
+      // Generate random connections
+      const links = [];
+      nodes.forEach((source, i) => {
+        const numLinks = Math.floor(Math.random() * 3);
+        for (let j = 0; j < numLinks; j++) {
+          const target = nodes[Math.floor(Math.random() * nodes.length)];
+          if (target !== source) {
+            links.push({ source, target });
+          }
+        }
+      });
+      
+      // Draw connections
+      svg.selectAll("line")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y)
+        .attr("stroke", "var(--secondary-color)")
+        .attr("stroke-width", 0.5);
+      
+      // Create parameter comparison chart
+      const ctx = document.getElementById("parameterChart").getContext("2d");
+      const parameterChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["MobileNetV2", "ResNet50", "VGG16"],
+          datasets: [{
+            label: "عدد المعلمات (بالمليون)",
+            data: [2.4, 23.5, 138],
+            backgroundColor: [
+              "rgba(62, 146, 204, 0.8)",
+              "rgba(143, 57, 133, 0.8)",
+              "rgba(255, 159, 64, 0.8)"
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                font: {
+                  family: "Tajawal"
+                },
+                color: "#FFFFFF"
+              }
+            },
+            title: {
+              display: true,
+              text: "مقارنة حجم النماذج المختلفة",
+              font: {
+                family: "Tajawal",
+                size: 16
+              },
+              color: "#FFFFFF"
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: "#FFFFFF",
+                font: {
+                  family: "Tajawal"
+                }
+              }
+            },
+            x: {
+              ticks: {
+                color: "#FFFFFF",
+                font: {
+                  family: "Tajawal"
+                }
+              }
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+

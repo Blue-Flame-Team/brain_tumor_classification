@@ -1,0 +1,291 @@
+<html lang="ar" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الخلاصة والتوصيات</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+      
+      body {
+        font-family: 'Tajawal', sans-serif;
+        direction: rtl;
+        text-align: right;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0A2463;
+        color: #FFFFFF;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      
+      .subtitle {
+        font-size: 24px;
+        font-weight: 500;
+        color: #3E92CC;
+      }
+      
+      .content-text {
+        font-size: 20px;
+        line-height: 1.6;
+      }
+      
+      .network-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: 0;
+      }
+      
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .highlight {
+        color: #8F3985;
+        font-weight: 500;
+      }
+      
+      .summary-box {
+        background-color: rgba(62, 146, 204, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+      
+      .recommendation-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      
+      .recommendation-icon {
+        color: #3E92CC;
+        font-size: 24px;
+        margin-left: 10px;
+        min-width: 30px;
+      }
+      
+      .next-step-item {
+        border-right: 3px solid #3E92CC;
+        padding-right: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+      }
+      
+      .next-step-item:hover {
+        border-right-color: #8F3985;
+        background-color: rgba(62, 146, 204, 0.1);
+      }
+    </style>
+  
+</head>
+  <body style="margin: 0px; overflow: hidden;">
+    <div class="slide-container flex flex-col p-10">
+      <div class="network-bg">
+        <!-- Background network pattern will be created with D3.js -->
+      <svg width="100%" height="100%"><circle cx="165.15269828268373" cy="340.0745132179586" r="1.5275366747461718" fill="#3E92CC"></circle><circle cx="494.270205024886" cy="269.7561604511292" r="2.155964627289602" fill="#3E92CC"></circle><circle cx="596.6719496812284" cy="337.68156874651635" r="2.9255677467464376" fill="#3E92CC"></circle><circle cx="522.827103624558" cy="400.671065761981" r="2.865310243032943" fill="#3E92CC"></circle><circle cx="938.5738628715048" cy="178.72739746397284" r="2.794731538430283" fill="#3E92CC"></circle><circle cx="654.4180514123509" cy="496.73649810958295" r="3.015103435424263" fill="#3E92CC"></circle><circle cx="1255.3950312701656" cy="531.9248710485389" r="1.1177891365611083" fill="#3E92CC"></circle><circle cx="56.71642093546026" cy="258.6433428550752" r="2.202419714391494" fill="#3E92CC"></circle><circle cx="1191.3023109355327" cy="118.52751474439151" r="2.055671197990177" fill="#3E92CC"></circle><circle cx="1171.0263979561137" cy="332.7241895283811" r="1.544260869777815" fill="#3E92CC"></circle><circle cx="465.8497649976466" cy="138.60748598900204" r="3.576479453243689" fill="#3E92CC"></circle><circle cx="351.13383095283825" cy="524.1847647621747" r="1.0195522279597125" fill="#3E92CC"></circle><circle cx="589.8511971238422" cy="535.8342755429236" r="1.697994091944078" fill="#3E92CC"></circle><circle cx="449.02005957129643" cy="411.57531204518415" r="1.231237475007589" fill="#3E92CC"></circle><circle cx="682.0999202290722" cy="426.79018437609324" r="1.9991558640069935" fill="#3E92CC"></circle><circle cx="173.19517157613646" cy="240.21796430629146" r="2.039852089401837" fill="#3E92CC"></circle><circle cx="220.54765809046003" cy="19.010935037398227" r="2.0408832235917735" fill="#3E92CC"></circle><circle cx="994.0094905288076" cy="395.9759393900829" r="2.4283128509743572" fill="#3E92CC"></circle><circle cx="535.2967251189689" cy="38.46366023210764" r="2.2166600247456" fill="#3E92CC"></circle><circle cx="71.65457020477163" cy="387.71368873291294" r="3.1275057299194033" fill="#3E92CC"></circle><circle cx="285.77301349745227" cy="674.0771816399913" r="3.826016243092823" fill="#3E92CC"></circle><circle cx="250.1590231140986" cy="134.06537216828463" r="2.646942031388376" fill="#3E92CC"></circle><circle cx="736.0562420388226" cy="524.1038687944703" r="2.3332017706733197" fill="#3E92CC"></circle><circle cx="357.29653174251496" cy="175.90793885466294" r="3.328953056495504" fill="#3E92CC"></circle><circle cx="1190.2226389859006" cy="316.23736497010185" r="3.196576527848179" fill="#3E92CC"></circle><circle cx="1062.1548649258639" cy="242.69006743935256" r="1.6280609551836451" fill="#3E92CC"></circle><circle cx="1042.1824191453888" cy="319.3136426984525" r="3.855959411227588" fill="#3E92CC"></circle><circle cx="981.5518608385548" cy="58.25510254843529" r="1.3596694967010698" fill="#3E92CC"></circle><circle cx="597.4465164422521" cy="531.309628422781" r="2.6782715087377844" fill="#3E92CC"></circle><circle cx="1086.4280573083054" cy="407.4749086632463" r="1.6424689881672165" fill="#3E92CC"></circle><circle cx="703.9740246362288" cy="238.35988423448674" r="2.541723856027982" fill="#3E92CC"></circle><circle cx="215.07262963029532" cy="113.30084349617096" r="2.953188055060368" fill="#3E92CC"></circle><circle cx="691.3288906976513" cy="17.132163158890563" r="2.6271796317819662" fill="#3E92CC"></circle><circle cx="17.333612279298904" cy="650.5894460894204" r="3.0032930283462234" fill="#3E92CC"></circle><circle cx="1080.009549634647" cy="445.75369183159415" r="2.0898001564320308" fill="#3E92CC"></circle><circle cx="510.9682683355999" cy="214.53676383274245" r="2.8967593475388806" fill="#3E92CC"></circle><circle cx="182.5246865255626" cy="31.59689909209937" r="2.0880772295289285" fill="#3E92CC"></circle><circle cx="482.77392829594135" cy="419.97055952271194" r="1.8893957411309799" fill="#3E92CC"></circle><circle cx="505.99071235705253" cy="333.6620245917959" r="1.627261811059633" fill="#3E92CC"></circle><circle cx="850.6931930950185" cy="573.6630817983594" r="2.0649357666519808" fill="#3E92CC"></circle><circle cx="391.9572253607829" cy="203.59076751822676" r="1.678339689827803" fill="#3E92CC"></circle><circle cx="193.26253363619472" cy="141.85479724755402" r="1.0381957621425788" fill="#3E92CC"></circle><circle cx="645.4900647434397" cy="70.79097237302055" r="2.6954686034706024" fill="#3E92CC"></circle><circle cx="615.1810173563298" cy="596.2050436162283" r="1.0169321282470731" fill="#3E92CC"></circle><circle cx="899.5574005767834" cy="163.68071369801834" r="3.918830790724282" fill="#3E92CC"></circle><circle cx="522.5445053782371" cy="476.86150524726014" r="2.920485753941633" fill="#3E92CC"></circle><circle cx="1162.165051706874" cy="506.4480112691439" r="2.9904658649824487" fill="#3E92CC"></circle><circle cx="524.5188076403082" cy="371.98542064014384" r="1.3016025867760128" fill="#3E92CC"></circle><circle cx="812.6951977421039" cy="441.14039805980593" r="3.6924170938771086" fill="#3E92CC"></circle><circle cx="1222.8702625908984" cy="149.10070683268484" r="2.4654044163643416" fill="#3E92CC"></circle><line x1="494.270205024886" y1="269.7561604511292" x2="589.8511971238422" y2="535.8342755429236" stroke="#3E92CC" stroke-width="0.5"></line><line x1="938.5738628715048" y1="178.72739746397284" x2="1190.2226389859006" y2="316.23736497010185" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1255.3950312701656" y1="531.9248710485389" x2="71.65457020477163" y2="387.71368873291294" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1255.3950312701656" y1="531.9248710485389" x2="1080.009549634647" y2="445.75369183159415" stroke="#3E92CC" stroke-width="0.5"></line><line x1="56.71642093546026" y1="258.6433428550752" x2="482.77392829594135" y2="419.97055952271194" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1171.0263979561137" y1="332.7241895283811" x2="56.71642093546026" y2="258.6433428550752" stroke="#3E92CC" stroke-width="0.5"></line><line x1="449.02005957129643" y1="411.57531204518415" x2="522.5445053782371" y2="476.86150524726014" stroke="#3E92CC" stroke-width="0.5"></line><line x1="682.0999202290722" y1="426.79018437609324" x2="524.5188076403082" y2="371.98542064014384" stroke="#3E92CC" stroke-width="0.5"></line><line x1="535.2967251189689" y1="38.46366023210764" x2="494.270205024886" y2="269.7561604511292" stroke="#3E92CC" stroke-width="0.5"></line><line x1="250.1590231140986" y1="134.06537216828463" x2="994.0094905288076" y2="395.9759393900829" stroke="#3E92CC" stroke-width="0.5"></line><line x1="250.1590231140986" y1="134.06537216828463" x2="938.5738628715048" y2="178.72739746397284" stroke="#3E92CC" stroke-width="0.5"></line><line x1="736.0562420388226" y1="524.1038687944703" x2="17.333612279298904" y2="650.5894460894204" stroke="#3E92CC" stroke-width="0.5"></line><line x1="736.0562420388226" y1="524.1038687944703" x2="1080.009549634647" y2="445.75369183159415" stroke="#3E92CC" stroke-width="0.5"></line><line x1="357.29653174251496" y1="175.90793885466294" x2="285.77301349745227" y2="674.0771816399913" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1190.2226389859006" y1="316.23736497010185" x2="524.5188076403082" y2="371.98542064014384" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1190.2226389859006" y1="316.23736497010185" x2="522.827103624558" y2="400.671065761981" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1062.1548649258639" y1="242.69006743935256" x2="1255.3950312701656" y2="531.9248710485389" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1042.1824191453888" y1="319.3136426984525" x2="1171.0263979561137" y2="332.7241895283811" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1042.1824191453888" y1="319.3136426984525" x2="494.270205024886" y2="269.7561604511292" stroke="#3E92CC" stroke-width="0.5"></line><line x1="597.4465164422521" y1="531.309628422781" x2="981.5518608385548" y2="58.25510254843529" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1086.4280573083054" y1="407.4749086632463" x2="494.270205024886" y2="269.7561604511292" stroke="#3E92CC" stroke-width="0.5"></line><line x1="703.9740246362288" y1="238.35988423448674" x2="1222.8702625908984" y2="149.10070683268484" stroke="#3E92CC" stroke-width="0.5"></line><line x1="703.9740246362288" y1="238.35988423448674" x2="182.5246865255626" y2="31.59689909209937" stroke="#3E92CC" stroke-width="0.5"></line><line x1="17.333612279298904" y1="650.5894460894204" x2="703.9740246362288" y2="238.35988423448674" stroke="#3E92CC" stroke-width="0.5"></line><line x1="17.333612279298904" y1="650.5894460894204" x2="589.8511971238422" y2="535.8342755429236" stroke="#3E92CC" stroke-width="0.5"></line><line x1="182.5246865255626" y1="31.59689909209937" x2="1162.165051706874" y2="506.4480112691439" stroke="#3E92CC" stroke-width="0.5"></line><line x1="482.77392829594135" y1="419.97055952271194" x2="524.5188076403082" y2="371.98542064014384" stroke="#3E92CC" stroke-width="0.5"></line><line x1="482.77392829594135" y1="419.97055952271194" x2="1062.1548649258639" y2="242.69006743935256" stroke="#3E92CC" stroke-width="0.5"></line><line x1="505.99071235705253" y1="333.6620245917959" x2="391.9572253607829" y2="203.59076751822676" stroke="#3E92CC" stroke-width="0.5"></line><line x1="645.4900647434397" y1="70.79097237302055" x2="1086.4280573083054" y2="407.4749086632463" stroke="#3E92CC" stroke-width="0.5"></line><line x1="645.4900647434397" y1="70.79097237302055" x2="494.270205024886" y2="269.7561604511292" stroke="#3E92CC" stroke-width="0.5"></line><line x1="615.1810173563298" y1="596.2050436162283" x2="812.6951977421039" y2="441.14039805980593" stroke="#3E92CC" stroke-width="0.5"></line><line x1="1162.165051706874" y1="506.4480112691439" x2="589.8511971238422" y2="535.8342755429236" stroke="#3E92CC" stroke-width="0.5"></line><line x1="812.6951977421039" y1="441.14039805980593" x2="1255.3950312701656" y2="531.9248710485389" stroke="#3E92CC" stroke-width="0.5"></line></svg></div>
+      
+      <div class="content w-full h-full flex flex-col">
+        <h1 class="title mb-3 text-center">الخلاصة والتوصيات</h1>
+        
+        <div class="flex flex-grow justify-evenly">
+          <div class="w-1/2 pr-6">
+            <h2 class="subtitle mb-2">ملخص النقاط الرئيسية</h2>
+            
+            <div class="summary-box">
+              <ul class="content-text list-disc list-inside">
+                <li>نموذج الذكاء الاصطناعي المبني على <span class="highlight">MobileNetV2</span> يحقق دقة تشخيص عالية تصل إلى <span class="highlight">97.2%</span></li>
+                <li>تقليل وقت التشخيص من ساعات إلى <span class="highlight">ثوانٍ معدودة</span></li>
+                <li>تصنيف دقيق لثلاثة أنواع رئيسية من أورام الدماغ</li>
+                <li>نموذج خفيف الوزن يمكن تشغيله على الأجهزة الطبية المحمولة</li>
+                <li>إمكانية التكامل مع أنظمة التصوير الطبي الحالية</li>
+              </ul>
+            </div>
+            
+            <h2 class="subtitle mt-4 mb-2">التوصيات للاستخدام الأمثل</h2>
+            
+            <div class="recommendation-item">
+              <i class="fas fa-user-md recommendation-icon"></i>
+              <p class="content-text">استخدام النموذج كأداة مساعدة للأطباء وليس بديلاً عنهم، مع الاحتفاظ بالقرار النهائي للطبيب المختص.</p>
+            </div>
+            
+            <div class="recommendation-item">
+              <i class="fas fa-sync-alt recommendation-icon"></i>
+              <p class="content-text">تحديث النموذج دورياً باستخدام بيانات جديدة لضمان استمرار الدقة العالية.</p>
+            </div>
+            
+            <div class="recommendation-item">
+              <i class="fas fa-graduation-cap recommendation-icon"></i>
+              <p class="content-text">تدريب الكوادر الطبية على استخدام النظام وفهم نتائجه بشكل صحيح.</p>
+            </div>
+          </div>
+          
+          <div class="w-1/2 flex flex-col">
+            <h2 class="subtitle mb-2">الخطوات المستقبلية</h2>
+            
+            <div class="next-step-item p-2">
+              <h3 class="text-xl font-bold text-white">توسيع قاعدة البيانات</h3>
+              <p class="content-text">جمع المزيد من صور الرنين المغناطيسي من مستشفيات متنوعة لتحسين أداء النموذج على مجموعات سكانية مختلفة.</p>
+            </div>
+            
+            <div class="next-step-item p-2">
+              <h3 class="text-xl font-bold text-white">تطوير نماذج متخصصة</h3>
+              <p class="content-text">إنشاء نماذج متخصصة لأنواع فرعية من الأورام وتصنيف درجات خطورتها.</p>
+            </div>
+            
+            <div class="next-step-item p-2">
+              <h3 class="text-xl font-bold text-white">التجارب السريرية</h3>
+              <p class="content-text">إجراء تجارب سريرية موسعة في مستشفيات متعددة لتقييم فعالية النموذج في بيئات حقيقية.</p>
+            </div>
+            
+            <div class="next-step-item p-2">
+              <h3 class="text-xl font-bold text-white">التكامل مع أنظمة الرعاية الصحية</h3>
+              <p class="content-text">تطوير واجهات برمجية (APIs) للتكامل السلس مع أنظمة السجلات الطبية الإلكترونية.</p>
+            </div>
+            
+            <div style="height: 200px; margin-top: 20px;">
+              <canvas id="impactChart" style="display: block; box-sizing: border-box; height: 200px; width: 600px;" width="750" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Create network background
+      const svg = d3.select(".network-bg")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
+      
+      // Generate random nodes
+      const nodes = Array.from({ length: 50 }, () => ({
+        x: Math.random() * 1280,
+        y: Math.random() * 720,
+        r: Math.random() * 3 + 1
+      }));
+      
+      // Draw nodes
+      svg.selectAll("circle")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.r)
+        .attr("fill", "#3E92CC");
+      
+      // Generate random connections
+      const links = [];
+      nodes.forEach((source, i) => {
+        const numLinks = Math.floor(Math.random() * 3);
+        for (let j = 0; j < numLinks; j++) {
+          const target = nodes[Math.floor(Math.random() * nodes.length)];
+          if (target !== source) {
+            links.push({ source, target });
+          }
+        }
+      });
+      
+      // Draw connections
+      svg.selectAll("line")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y)
+        .attr("stroke", "#3E92CC")
+        .attr("stroke-width", 0.5);
+      
+      // Create impact chart
+      const ctx = document.getElementById('impactChart').getContext('2d');
+      const impactChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: [
+            'دقة التشخيص',
+            'سرعة التشخيص',
+            'تقليل التكلفة',
+            'الوصول للمناطق النائية',
+            'تقليل الحاجة للخزعات',
+            'تحسين نتائج العلاج'
+          ],
+          datasets: [{
+            label: 'التأثير المتوقع للنموذج',
+            data: [95, 98, 80, 90, 75, 85],
+            backgroundColor: 'rgba(143, 57, 133, 0.2)',
+            borderColor: '#3E92CC',
+            pointBackgroundColor: '#8F3985',
+            pointBorderColor: '#FFFFFF',
+            pointHoverBackgroundColor: '#FFFFFF',
+            pointHoverBorderColor: '#3E92CC'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: {
+                color: 'rgba(255, 255, 255, 0.2)'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.2)'
+              },
+              pointLabels: {
+                color: '#FFFFFF',
+                font: {
+                  size: 14
+                }
+              },
+              ticks: {
+                color: '#FFFFFF',
+                backdropColor: 'transparent',
+                showLabelBackdrop: false
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#FFFFFF'
+              }
+            },
+            title: {
+              display: true,
+              text: 'التأثير المتوقع للنموذج (%)',
+              color: '#FFFFFF',
+              font: {
+                size: 16
+              }
+            }
+          }
+        }
+      });
+    </script>
+  
+
+
+
+</body></html>

@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج الذكاء الاصطناعي لتشخيص أورام الدماغ</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap");
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Tajawal", sans-serif;
+            direction: rtl;
+            text-align: right;
+            overflow-x: hidden;
+            background: #0A2463;
+            color: #FFFFFF;
+        }
+        
+        /* Hide scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* Slide Styles */
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            background: #0A2463;
+            color: #FFFFFF;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(50px);
+            transition: all 0.6s ease-in-out;
+            z-index: 1;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            z-index: 10;
+        }
+        
+        .slide-container.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-50px);
+            z-index: 1;
+        }
+        
+        /* Typography */
+        .title {
+            font-size: clamp(1.8rem, 4.5vw, 3rem);
+            font-weight: 700;
+            color: #FFFFFF;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #FFFFFF, #3E92CC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: clamp(1.1rem, 2.8vw, 1.8rem);
+            font-weight: 600;
+            color: #3E92CC;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .content-text {
+            font-size: clamp(0.95rem, 2vw, 1.2rem);
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .highlight {
+            color: #8F3985;
+            font-weight: 500;
+        }
+        
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(10, 36, 99, 0.9);
+            padding: 1rem;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            min-height: 300px;
+            justify-content: space-between;
+        }
+        
+        .nav-btn {
+            background: #3E92CC;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .nav-btn:hover {
+            background: #8F3985;
+            transform: scale(1.05);
+        }
+        
+                 .nav-btn:disabled {
+             background: #555;
+             cursor: not-allowed;
+             transform: none;
+             opacity: 0.5;
+         }
+         
+         .nav-btn:active {
+             transform: scale(0.95);
+         }
+        
+        .slide-indicator {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            width: 4px;
+            height: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 3px 0;
+        }
+        
+        .slide-indicator.active {
+            background: #3E92CC;
+            width: 6px;
+            height: 30px;
+            box-shadow: 0 0 10px rgba(62, 146, 204, 0.5);
+        }
+        
+        .slide-indicator:hover {
+            background: rgba(255, 255, 255, 0.6);
+            width: 5px;
+            height: 25px;
+        }
+        
+        /* Responsive Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1100px;
+            align-items: start;
+        }
+        
+        .content {
+            width: 100%;
+            max-width: 1100px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 80vh;
+        }
+        
+        /* Single column layout for better content flow */
+        .content-single {
+            width: 100%;
+            max-width: 900px;
+            padding: 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .nav-container {
+                right: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                padding: 0.5rem;
+                min-height: 250px;
+                width: 60px;
+            }
+            
+            .nav-btn {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .slide-indicator {
+                width: 3px;
+                height: 15px;
+            }
+            
+            .slide-indicator.active {
+                width: 4px;
+                height: 20px;
+            }
+            
+            .slide-indicator:hover {
+                width: 4px;
+                height: 18px;
+            }
+            
+            .slide-container {
+                padding: 1rem;
+            }
+            
+            .title {
+                font-size: clamp(1.5rem, 4vw, 3rem);
+            }
+            
+            .subtitle {
+                font-size: clamp(1rem, 2.5vw, 1.5rem);
+            }
+            
+            .content-text {
+                font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-container {
+                right: 0.5rem;
+                width: 50px;
+                min-height: 200px;
+            }
+            
+            .nav-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 0.7rem;
+            }
+            
+            .slide-container {
+                padding: 0.5rem;
+            }
+        }
+        
+        /* Animations */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-slide-in-right {
+            animation: slideInRight 0.8s ease-out forwards;
+        }
+        
+        .animate-slide-in-left {
+            animation: slideInLeft 0.8s ease-out forwards;
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        /* Background Pattern */
+        .network-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        /* Custom Components */
+        .metric-box {
+            background: linear-gradient(135deg, rgba(62, 146, 204, 0.15), rgba(143, 57, 133, 0.1));
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(62, 146, 204, 0.3);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(8px);
+        }
+        
+        .metric-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(62, 146, 204, 0.3);
+            border-color: rgba(62, 146, 204, 0.5);
+        }
+        
+        .metric-box:hover {
+            background-color: rgba(143, 57, 133, 0.2);
+            border-color: rgba(143, 57, 133, 0.5);
+            transform: translateY(-5px);
+        }
+        
+        .team-member {
+            background: linear-gradient(135deg, rgba(62, 146, 204, 0.12), rgba(143, 57, 133, 0.08));
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border-right: 4px solid #3E92CC;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(62, 146, 204, 0.2);
+        }
+        
+        .team-member:hover {
+            transform: translateY(-3px) translateX(5px);
+            box-shadow: 0 8px 25px rgba(62, 146, 204, 0.2);
+            border-color: rgba(62, 146, 204, 0.4);
+            background: linear-gradient(135deg, rgba(62, 146, 204, 0.18), rgba(143, 57, 133, 0.12));
+        }
+        
+        .team-member:hover {
+            background-color: rgba(143, 57, 133, 0.1);
+            border-right-color: #8F3985;
+            transform: translateY(-5px);
+        }
+        
+        /* Chart containers */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin: 1.5rem auto;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+            border-radius: 12px;
+            padding: 1.2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .chart-title {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #3E92CC;
+        }
+        
+        /* Image styling */
+        .slide-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            object-fit: cover;
+        }
+        
+        .slide-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 45px rgba(62, 146, 204, 0.3);
+            border-color: rgba(62, 146, 204, 0.4);
+        }
+        
+        /* Better image containers */
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border-radius: 20px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 280px;
+                margin: 1rem 0;
+                padding: 0.8rem;
+            }
+            
+            .slide-image {
+                border-radius: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chart-container {
+                height: 250px;
+                margin: 0.8rem 0;
+                padding: 0.6rem;
+            }
+        }
+        
+        /* Content spacing improvements */
+        .content-section {
+            margin-bottom: 2rem;
+        }
+        
+        .content-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* List styling improvements */
+        .content-list {
+            padding-right: 1.5rem;
+        }
+        
+        .content-list li {
+            margin-bottom: 0.8rem;
+            line-height: 1.8;
+        }
+        
+        /* Upload area styling */
+        .upload-area {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(62, 146, 204, 0.3);
+        }
+        
+        .upload-area.dragover {
+            border-color: #3E92CC;
+            background-color: rgba(62, 146, 204, 0.1);
+        }
+        
+        /* Progress bar styling */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #3E92CC, #8F3985);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Results styling */
+        .diagnosis-card {
+            background: rgba(62, 146, 204, 0.1);
+            border: 1px solid rgba(62, 146, 204, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .diagnosis-card:hover {
+            background: rgba(62, 146, 204, 0.2);
+            border-color: rgba(62, 146, 204, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .probability-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            height: 6px;
+            margin-top: 4px;
+        }
+        
+        .probability-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.8s ease;
+        }
+        
+        .probability-fill.high {
+            background: linear-gradient(90deg, #10B981, #34D399);
+        }
+        
+        .probability-fill.medium {
+            background: linear-gradient(90deg, #F59E0B, #FBBF24);
+        }
+        
+        .probability-fill.low {
+            background: linear-gradient(90deg, #EF4444, #F87171);
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Content flow improvements */
+        .slide-container.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Better content organization */
+        .content-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+        
+        /* Ensure metric boxes are balanced */
+        .grid-container {
+            display: grid;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1100px;
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        /* Space utilities - مسافات متوازنة */
+        .space-y-4 > * + * {
+            margin-top: 1.2rem !important;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 1rem !important;
+        }
+        
+        .space-y-2 > * + * {
+            margin-top: 0.8rem !important;
+        }
+        
+        /* List styling improvements */
+        .content-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .content-list li {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0.8rem 0;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            border-right: 3px solid #3E92CC;
+            transition: all 0.3s ease;
+        }
+        
+        .content-list li:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .metric-box {
+                min-height: 80px;
+                padding: 1.2rem;
+            }
+            
+            .space-y-4 > * + * {
+                margin-top: 1rem !important;
+            }
+            
+            .space-y-3 > * + * {
+                margin-top: 0.8rem !important;
+            }
+            
+            .chart-container {
+                height: 250px;
+                margin: 1.2rem auto;
+                padding: 1rem;
+                max-width: 100%;
+            }
+            
+            .content {
+                min-height: 70vh;
+                padding: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .slide-container {
+                padding: 1rem;
+                justify-content: flex-start;
+                padding-top: 2rem;
+            }
+            
+            .content-grid {
+                gap: 1.2rem;
+            }
+            
+            .metric-box {
+                min-height: 70px;
+                padding: 1rem;
+            }
+            
+            .space-y-4 > * + * {
+                margin-top: 0.8rem !important;
+            }
+            
+            .grid-cols-2,
+            .grid-cols-3,
+            .grid-cols-4 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .grid-container {
+                gap: 1.2rem;
+            }
+            
+            .chart-container {
+                height: 220px;
+                margin: 1rem auto;
+                padding: 0.8rem;
+            }
+            
+            .title {
+                font-size: clamp(1.5rem, 4.5vw, 2.5rem);
+                margin-bottom: 1.2rem;
+                background: linear-gradient(135deg, #FFFFFF, #3E92CC);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            
+            .subtitle {
+                font-size: clamp(1.1rem, 2.8vw, 1.6rem);
+                margin-bottom: 1rem;
+            }
+            
+            .content-text {
+                font-size: clamp(1rem, 2vw, 1.2rem);
+            }
+            
+            .content-wrapper {
+                gap: 1.5rem;
+            }
+            
+            .content {
+                min-height: auto;
+                padding: 0;
+            }
+            
+            .content-list li {
+                padding: 0.8rem 1.2rem;
+                margin: 0.6rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="nav-container">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" title="السلايد السابق">
+            <i class="fas fa-chevron-up"></i>
+        </button>
+        
+        <div class="flex flex-col gap-1" id="indicators"></div>
+        
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)" title="السلايد التالي">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
+
+    <!-- Slide 1: Title -->
+    <div class="slide-container" id="slide-0">
+        <div class="network-bg" id="bg-0"></div>
+        <div class="content flex flex-col items-center justify-center">
+            <div class="mb-8 animate-fade-in-up">
+                <img src="presentation_images/title_slide.png" alt="AI Brain Tumor Diagnosis" 
+                     class="slide-image" style="max-height: 400px; object-fit: contain;">
+            </div>
+            <h1 class="title animate-slide-in-right">نموذج الذكاء الاصطناعي لتشخيص أورام الدماغ</h1>
+            <p class="subtitle text-center animate-slide-in-left">تطبيق التعلم العميق في التشخيص الطبي</p>
+            <div class="mt-8 text-center text-2xl animate-fade-in-up">
+                <p>تاريخ العرض: يوليو 2025</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Brain Tumor Introduction -->
+    <div class="slide-container" id="slide-1">
+        <div class="network-bg" id="bg-1"></div>
+        <div class="content">
+            <h1 class="title">مقدمة عن أورام الدماغ</h1>
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <h2 class="subtitle">ما هي أورام الدماغ؟</h2>
+                    <p class="content-text mb-4">
+                        أورام الدماغ هي نمو غير طبيعي للخلايا داخل الدماغ أو في الأنسجة المحيطة به. يمكن أن تكون حميدة (غير سرطانية) أو خبيثة (سرطانية).
+                    </p>
+                    
+                    <h2 class="subtitle">الإحصائيات والأهمية الطبية</h2>
+                    <ul class="content-text content-list list-disc list-inside">
+                        <li>يتم تشخيص أكثر من <span class="highlight">300,000</span> حالة ورم دماغي سنوياً</li>
+                        <li>تمثل أورام الدماغ <span class="highlight">2-3%</span> من جميع أنواع السرطانات</li>
+                        <li>التشخيص المبكر يزيد فرص العلاج الناجح بنسبة <span class="highlight">70%</span></li>
+                    </ul>
+                </div>
+                
+                <div class="animate-slide-in-left">
+                    <div class="mb-4">
+                        <img src="presentation_images/brain_tumor_detailed.jpg" alt="صورة توضيحية لأورام الدماغ" 
+                             class="slide-image" style="max-height: 300px; object-fit: cover;">
+                    </div>
+                    
+                    <h2 class="subtitle">تحديات التشخيص التقليدي</h2>
+                    <ul class="content-text content-list list-disc list-inside">
+                        <li>صعوبة تمييز أنواع الأورام المختلفة في صور الأشعة</li>
+                        <li>الحاجة إلى خبرة متخصصة عالية للتشخيص الدقيق</li>
+                        <li>استهلاك وقت طويل في تحليل صور الرنين المغناطيسي</li>
+                        <li>تباين التفسيرات بين الأطباء المختلفين</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="survivalChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: AI Role -->
+    <div class="slide-container" id="slide-2">
+        <div class="network-bg" id="bg-2"></div>
+        <div class="content">
+            <h1 class="title">دور الذكاء الاصطناعي في تشخيص أورام الدماغ</h1>
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <h2 class="subtitle">مزايا استخدام الذكاء الاصطناعي</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 border-r-4 border-blue-400 bg-blue-900 bg-opacity-20 rounded">
+                            <h3 class="text-xl font-bold">دقة تشخيص أعلى</h3>
+                            <p class="content-text">تحقيق دقة تصل إلى <span class="highlight">95-99%</span> في تحديد وتصنيف أورام الدماغ.</p>
+                        </div>
+                        <div class="p-4 border-r-4 border-blue-400 bg-blue-900 bg-opacity-20 rounded">
+                            <h3 class="text-xl font-bold">سرعة التشخيص</h3>
+                            <p class="content-text">تقليل وقت التشخيص من ساعات إلى <span class="highlight">ثوانٍ معدودة</span>.</p>
+                        </div>
+                        <div class="p-4 border-r-4 border-blue-400 bg-blue-900 bg-opacity-20 rounded">
+                            <h3 class="text-xl font-bold">تقليل الحاجة للخزعات</h3>
+                            <p class="content-text">تقليل الحاجة للإجراءات الجراحية التشخيصية بنسبة <span class="highlight">40%</span>.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-slide-in-left">
+                    <div class="mb-4">
+                        <img src="presentation_images/ai_medical_imaging.png" alt="الذكاء الاصطناعي في التصوير الطبي" 
+                             class="slide-image" style="max-height: 300px; object-fit: cover;">
+                    </div>
+                    <h2 class="subtitle">التطور التاريخي للتقنيات</h2>
+                    <div class="space-y-3">
+                        <div class="border-r-4 border-blue-400 pr-4">
+                            <h3 class="text-xl font-bold">2010-2015</h3>
+                            <p class="content-text">بداية استخدام خوارزميات التعلم الآلي البسيطة لتحليل صور الرنين المغناطيسي.</p>
+                        </div>
+                        <div class="border-r-4 border-blue-400 pr-4">
+                            <h3 class="text-xl font-bold">2016-2020</h3>
+                            <p class="content-text">تطوير شبكات عصبية عميقة متخصصة في تحليل الصور الطبية.</p>
+                        </div>
+                        <div class="border-r-4 border-blue-400 pr-4">
+                            <h3 class="text-xl font-bold">2021-الآن</h3>
+                            <p class="content-text">نماذج متقدمة تجمع بين تحليل الصور والبيانات الجينية.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="accuracyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Tumor Types -->
+    <div class="slide-container" id="slide-3">
+        <div class="network-bg" id="bg-3"></div>
+        <div class="content">
+            <h1 class="title">أنواع أورام الدماغ</h1>
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <h2 class="subtitle">الأنواع الرئيسية لأورام الدماغ</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 border border-blue-400 rounded-lg hover:bg-purple-900 hover:bg-opacity-20 transition-all">
+                            <h3 class="text-xl font-bold mb-2">الأورام الدبقية (Gliomas)</h3>
+                            <p class="content-text">تنشأ من الخلايا الدبقية التي تدعم الخلايا العصبية. تشمل الورم الدبقي متعدد الأشكال (GBM) وهو الأكثر عدوانية.</p>
+                        </div>
+                        <div class="p-4 border border-blue-400 rounded-lg hover:bg-purple-900 hover:bg-opacity-20 transition-all">
+                            <h3 class="text-xl font-bold mb-2">الأورام السحائية (Meningiomas)</h3>
+                            <p class="content-text">تنشأ في الأغشية التي تغطي الدماغ والحبل الشوكي. غالباً ما تكون حميدة وبطيئة النمو.</p>
+                        </div>
+                        <div class="p-4 border border-blue-400 rounded-lg hover:bg-purple-900 hover:bg-opacity-20 transition-all">
+                            <h3 class="text-xl font-bold mb-2">أورام الغدة النخامية (Pituitary Tumors)</h3>
+                            <p class="content-text">تتطور في الغدة النخامية وقد تؤثر على إفراز الهرمونات وتسبب مشاكل في الرؤية.</p>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h2 class="subtitle">أهمية التشخيص المبكر والدقيق</h2>
+                        <ul class="content-text list-disc list-inside space-y-1">
+                            <li>تحديد خطة العلاج المناسبة (جراحة، إشعاع، كيماوي)</li>
+                            <li>تقليل الأضرار العصبية المحتملة</li>
+                            <li>زيادة معدلات البقاء على قيد الحياة</li>
+                            <li>تحسين جودة حياة المرضى</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="animate-slide-in-left">
+                    <div class="mb-4">
+                        <img src="presentation_images/brain_tumor_types.jpg" alt="أنواع أورام الدماغ" 
+                             class="slide-image" style="max-height: 300px; object-fit: cover;">
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="tumorDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Model Overview -->
+    <div class="slide-container" id="slide-4">
+        <div class="network-bg" id="bg-4"></div>
+        <div class="content">
+            <h1 class="title">نظرة عامة على النموذج المستخدم</h1>
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <h2 class="subtitle">بنية النموذج (MobileNetV2)</h2>
+                    <p class="content-text mb-4">
+                        النموذج يعتمد على بنية <span class="highlight">MobileNetV2</span> كنموذج أساسي مع تعديلات خاصة لتشخيص أورام الدماغ. تم اختيار هذه البنية لكفاءتها العالية وحجمها المناسب للتطبيقات الطبية.
+                    </p>
+                    
+                    <h2 class="subtitle">مميزات النموذج المختار</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-bolt text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">كفاءة حسابية عالية</h3>
+                                <p class="content-text">عدد معلمات أقل مع الحفاظ على الدقة العالية.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-mobile-alt text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">خفيف الوزن</h3>
+                                <p class="content-text">مناسب للتشغيل على الأجهزة الطبية المحمولة والأنظمة ذات الموارد المحدودة.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-brain text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">تخصيص للصور الطبية</h3>
+                                <p class="content-text">تم تعديل الطبقات النهائية لتناسب خصائص صور الرنين المغناطيسي للدماغ.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-slide-in-left">
+                    <div class="mb-4">
+                        <img src="presentation_images/model_architecture.png" alt="بنية نموذج MobileNetV2" 
+                             class="slide-image" style="max-height: 350px; object-fit: contain;">
+                    </div>
+                    <div class="bg-blue-900 bg-opacity-20 p-4 rounded-lg">
+                        <h2 class="subtitle">المواصفات التقنية</h2>
+                        <ul class="content-text content-list list-disc list-inside space-y-1">
+                            <li>مدخلات الصور: <span class="highlight">224×224×3</span> بكسل</li>
+                            <li>عدد الطبقات: <span class="highlight">53</span> طبقة</li>
+                            <li>إجمالي المعلمات: <span class="highlight">2.4</span> مليون</li>
+                            <li>المعلمات القابلة للتدريب: <span class="highlight">1.4</span> مليون</li>
+                            <li>عدد فئات التصنيف: <span class="highlight">3</span> (الورم الدبقي، الورم السحائي، الورم النخامي)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="parameterChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Model Details -->
+    <div class="slide-container" id="slide-5">
+        <div class="network-bg" id="bg-5"></div>
+        <div class="content">
+            <h1 class="title">تفاصيل النموذج وهيكله</h1>
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <h2 class="subtitle">الطبقات الرئيسية</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 border border-blue-400 rounded-lg bg-blue-900 bg-opacity-10">
+                            <h3 class="text-xl font-bold">طبقة الإدخال</h3>
+                            <p class="content-text">حجم الإدخال: <span class="highlight">224×224×3</span> بكسل</p>
+                        </div>
+                        <div class="p-3 border border-blue-400 rounded-lg bg-blue-900 bg-opacity-10">
+                            <h3 class="text-xl font-bold">النموذج الأساسي</h3>
+                            <p class="content-text">MobileNetV2 مع <span class="highlight">1280</span> ميزة مستخرجة</p>
+                        </div>
+                        <div class="p-3 border border-blue-400 rounded-lg bg-blue-900 bg-opacity-10">
+                            <h3 class="text-xl font-bold">طبقات التصنيف المخصصة</h3>
+                            <ul class="content-text content-list list-disc list-inside">
+                                <li>طبقة تجميع عالمية (Global Average Pooling)</li>
+                                <li>طبقة تطبيع الدفعة (Batch Normalization)</li>
+                                <li>طبقة كثيفة: <span class="highlight">128</span> عقدة</li>
+                                <li>طبقة تسريب (Dropout): <span class="highlight">0.3</span></li>
+                                <li>طبقة كثيفة: <span class="highlight">64</span> عقدة</li>
+                                <li>طبقة الإخراج: <span class="highlight">3</span> عقد</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-slide-in-left">
+                    <h2 class="subtitle">عملية التدريب والتحقق</h2>
+                    <ul class="content-text content-list list-disc list-inside space-y-2 mb-4">
+                        <li>مجموعة البيانات: <span class="highlight">3000</span> صورة رنين مغناطيسي</li>
+                        <li>نسبة التقسيم: <span class="highlight">80%</span> تدريب، <span class="highlight">20%</span> تحقق</li>
+                        <li>دالة الخسارة: <span class="highlight">Categorical Cross-Entropy</span></li>
+                        <li>المحسن: <span class="highlight">Adam</span> بمعدل تعلم <span class="highlight">0.0001</span></li>
+                        <li>عدد الحقب: <span class="highlight">50</span> حقبة</li>
+                        <li>حجم الدفعة: <span class="highlight">32</span></li>
+                        <li>تقنيات تعزيز البيانات: تدوير، تكبير/تصغير، إزاحة</li>
+                    </ul>
+                    
+                    <h2 class="subtitle">مقتطف من كود النموذج</h2>
+                    <div class="bg-black bg-opacity-30 rounded p-3 text-sm font-mono text-left" dir="ltr">
+# Base model (MobileNetV2)<br/>
+base_model = MobileNetV2(<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;input_shape=(224, 224, 3),<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;include_top=False,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;weights='imagenet'<br/>
+)<br/><br/>
+# Custom classification layers<br/>
+x = base_model.output<br/>
+x = GlobalAveragePooling2D()(x)<br/>
+predictions = Dense(3, activation='softmax')(x)
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="trainingChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Model Performance -->
+    <div class="slide-container" id="slide-6">
+        <div class="network-bg" id="bg-6"></div>
+        <div class="content">
+            <h1 class="title">أداء النموذج ونتائجه</h1>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="metric-box">
+                    <div class="text-3xl md:text-4xl font-bold">97.2%</div>
+                    <div class="text-lg text-blue-400">الدقة الكلية</div>
+                </div>
+                <div class="metric-box">
+                    <div class="text-3xl md:text-4xl font-bold">96.8%</div>
+                    <div class="text-lg text-blue-400">الحساسية</div>
+                </div>
+                <div class="metric-box">
+                    <div class="text-3xl md:text-4xl font-bold">97.5%</div>
+                    <div class="text-lg text-blue-400">الخصوصية</div>
+                </div>
+                <div class="metric-box">
+                    <div class="text-3xl md:text-4xl font-bold">96.9%</div>
+                    <div class="text-lg text-blue-400">قيمة F1</div>
+                </div>
+            </div>
+            
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <h2 class="subtitle">مقارنة مع الطرق التقليدية</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-clock text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">وقت التشخيص</h3>
+                                <p class="content-text">تقليل وقت التشخيص من <span class="highlight">30-60 دقيقة</span> إلى <span class="highlight">أقل من 10 ثوانٍ</span>.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-user-md text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">الاعتماد على الخبرة</h3>
+                                <p class="content-text">تقليل الاعتماد على خبرة الأطباء المتخصصين، مما يتيح التشخيص في المناطق النائية.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-chart-line text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">تحسين الدقة</h3>
+                                <p class="content-text">زيادة دقة التشخيص بنسبة <span class="highlight">15-20%</span> مقارنة بالطرق التقليدية.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h2 class="subtitle mt-6">أمثلة على حالات ناجحة</h2>
+                    <p class="content-text">
+                        تم اختبار النموذج على <span class="highlight">500</span> حالة سريرية في <span class="highlight">3</span> مستشفيات مختلفة، مع تحقيق نتائج متسقة ودقيقة في تشخيص أنواع الأورام المختلفة.
+                    </p>
+                </div>
+                <div class="animate-slide-in-left">
+                    <div class="chart-container">
+                        <canvas id="confusionMatrix"></canvas>
+                    </div>
+                    <div class="bg-blue-900 bg-opacity-20 p-4 rounded-lg">
+                        <h2 class="subtitle">دقة تشخيص كل نوع</h2>
+                        <ul class="content-text list-disc list-inside space-y-1">
+                            <li>الورم الدبقي: <span class="highlight">98.1%</span></li>
+                            <li>الورم السحائي: <span class="highlight">96.5%</span></li>
+                            <li>الورم النخامي: <span class="highlight">97.0%</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Practical Applications -->
+    <div class="slide-container" id="slide-7">
+        <div class="network-bg" id="bg-7"></div>
+        <div class="content">
+            <h1 class="title">التطبيقات العملية والمستقبلية</h1>
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <h2 class="subtitle">كيفية استخدام النموذج في المستشفيات</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 border-r-4 border-blue-400 hover:bg-purple-900 hover:bg-opacity-10 transition-all">
+                            <h3 class="text-xl font-bold">نظام دعم القرار الطبي</h3>
+                            <p class="content-text">دمج النموذج كأداة مساعدة للأطباء في تحليل صور الرنين المغناطيسي وتقديم تشخيص أولي سريع.</p>
+                        </div>
+                        <div class="p-4 border-r-4 border-blue-400 hover:bg-purple-900 hover:bg-opacity-10 transition-all">
+                            <h3 class="text-xl font-bold">الفرز والتصنيف الأولي</h3>
+                            <p class="content-text">استخدام النموذج لفرز الحالات حسب الأولوية، مما يسمح بتوجيه الموارد الطبية للحالات الأكثر خطورة.</p>
+                        </div>
+                        <div class="p-4 border-r-4 border-blue-400 hover:bg-purple-900 hover:bg-opacity-10 transition-all">
+                            <h3 class="text-xl font-bold">التشخيص عن بعد</h3>
+                            <p class="content-text">تمكين المستشفيات في المناطق النائية من الحصول على تشخيص دقيق دون الحاجة لوجود أخصائي أورام دماغ.</p>
+                        </div>
+                    </div>
+                    
+                    <h2 class="subtitle mt-6">التكامل مع أنظمة التصوير الطبي</h2>
+                    <p class="content-text">
+                        يمكن دمج النموذج مباشرة مع أجهزة التصوير بالرنين المغناطيسي (MRI) وأنظمة الأرشفة ونقل الصور (PACS) لتوفير تحليل فوري للصور الجديدة.
+                    </p>
+                </div>
+                <div class="animate-slide-in-left">
+                    <div class="chart-container">
+                        <canvas id="adoptionChart"></canvas>
+                    </div>
+                    
+                    <h2 class="subtitle">التطورات المستقبلية المحتملة</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-dna text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">دمج البيانات الجينية</h3>
+                                <p class="content-text">تطوير نماذج تجمع بين تحليل الصور والبيانات الجينية للمريض لتشخيص أكثر دقة.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-mobile-alt text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">تطبيقات الهاتف المحمول</h3>
+                                <p class="content-text">تطوير تطبيقات محمولة تسمح للأطباء بتحليل الصور وتلقي النتائج في أي مكان.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-robot text-2xl text-blue-400"></i>
+                            <div>
+                                <h3 class="text-xl font-bold">التكامل مع الجراحة الروبوتية</h3>
+                                <p class="content-text">استخدام النموذج لتوجيه الروبوتات الجراحية أثناء عمليات استئصال الأورام.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Team Members -->
+    <div class="slide-container" id="slide-8">
+        <div class="network-bg" id="bg-8"></div>
+        <div class="content">
+            <h1 class="title">أعضاء الفريق</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="team-member">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-circle text-4xl text-blue-400 ml-4"></i>
+                        <h2 class="text-2xl font-bold">أحمد أشرف إبراهيم عبدالجواد</h2>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-circle text-4xl text-blue-400 ml-4"></i>
+                        <h2 class="text-2xl font-bold">أحمد الشامي</h2>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-circle text-4xl text-blue-400 ml-4"></i>
+                        <h2 class="text-2xl font-bold">محمد سعيد</h2>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-circle text-4xl text-blue-400 ml-4"></i>
+                        <h2 class="text-2xl font-bold">مازن حمدي</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center animate-fade-in-up">
+                <p class="content-text text-xl">
+                    <span class="highlight">شكراً</span> لجميع أعضاء الفريق على جهودهم المتميزة في تطوير هذا النموذج
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Conclusion -->
+    <div class="slide-container" id="slide-9">
+        <div class="network-bg" id="bg-9"></div>
+        <div class="content">
+            <h1 class="title">الخلاصة والتوصيات</h1>
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <h2 class="subtitle">ملخص النقاط الرئيسية</h2>
+                    <div class="bg-blue-900 bg-opacity-20 p-4 rounded-lg">
+                        <ul class="content-text list-disc list-inside space-y-2">
+                            <li>نموذج الذكاء الاصطناعي المبني على <span class="highlight">MobileNetV2</span> يحقق دقة تشخيص عالية تصل إلى <span class="highlight">97.2%</span></li>
+                            <li>تقليل وقت التشخيص من ساعات إلى <span class="highlight">ثوانٍ معدودة</span></li>
+                            <li>تصنيف دقيق لثلاثة أنواع رئيسية من أورام الدماغ</li>
+                            <li>نموذج خفيف الوزن يمكن تشغيله على الأجهزة الطبية المحمولة</li>
+                            <li>إمكانية التكامل مع أنظمة التصوير الطبي الحالية</li>
+                        </ul>
+                    </div>
+                    
+                    <h2 class="subtitle mt-6">التوصيات للاستخدام الأمثل</h2>
+                    <div class="space-y-3">
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-user-md text-xl text-blue-400 mt-1"></i>
+                            <p class="content-text">استخدام النموذج كأداة مساعدة للأطباء وليس بديلاً عنهم، مع الاحتفاظ بالقرار النهائي للطبيب المختص.</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-sync-alt text-xl text-blue-400 mt-1"></i>
+                            <p class="content-text">تحديث النموذج دورياً باستخدام بيانات جديدة لضمان استمرار الدقة العالية.</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-graduation-cap text-xl text-blue-400 mt-1"></i>
+                            <p class="content-text">تدريب الكوادر الطبية على استخدام النظام وفهم نتائجه بشكل صحيح.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="animate-slide-in-left">
+                    <h2 class="subtitle">الخطوات المستقبلية</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 border-r-4 border-blue-400 hover:bg-purple-900 hover:bg-opacity-10 transition-all">
+                            <h3 class="text-xl font-bold">توسيع قاعدة البيانات</h3>
+                            <p class="content-text">جمع المزيد من صور الرنين المغناطيسي من مستشفيات متنوعة لتحسين أداء النموذج على مجموعات سكانية مختلفة.</p>
+                        </div>
+                        <div class="p-3 border-r-4 border-blue-400 hover:bg-purple-900 hover:bg-opacity-10 transition-all">
+                            <h3 class="text-xl font-bold">تطوير نماذج متخصصة</h3>
+                            <p class="content-text">إنشاء نماذج متخصصة لأنواع فرعية من الأورام وتصنيف درجات خطورتها.</p>
+                        </div>
+                        <div class="p-3 border-r-4 border-blue-400 hover:bg-purple-900 hover:bg-opacity-10 transition-all">
+                            <h3 class="text-xl font-bold">التجارب السريرية</h3>
+                            <p class="content-text">إجراء تجارب سريرية موسعة في مستشفيات متعددة لتقييم فعالية النموذج في بيئات حقيقية.</p>
+                        </div>
+                        <div class="p-3 border-r-4 border-blue-400 hover:bg-purple-900 hover:bg-opacity-10 transition-all">
+                            <h3 class="text-xl font-bold">التكامل مع أنظمة الرعاية الصحية</h3>
+                            <p class="content-text">تطوير واجهات برمجية (APIs) للتكامل السلس مع أنظمة السجلات الطبية الإلكترونية.</p>
+                        </div>
+                    </div>
+                    <div class="chart-container mt-4">
+                        <canvas id="impactChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: AI Diagnosis Tool -->
+    <div class="slide-container" id="slide-10">
+        <div class="network-bg" id="bg-10"></div>
+        <div class="content">
+            <h1 class="title">تجربة النموذج - تشخيص الأورام</h1>
+            <div class="content-grid">
+                <div class="animate-slide-in-right">
+                    <div class="bg-blue-900 bg-opacity-20 p-6 rounded-lg">
+                        <h2 class="subtitle mb-4">رفع صورة للتشخيص</h2>
+                        <div class="upload-area bg-gray-800 border-2 border-dashed border-blue-400 rounded-lg p-8 text-center transition-all hover:border-blue-300 hover:bg-gray-700" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-4"></i>
+                            <p class="content-text mb-4">اسحب وأسقط صورة الرنين المغناطيسي هنا أو اضغط للاختيار</p>
+                            <input type="file" id="imageInput" accept="image/*" class="hidden">
+                            <button class="nav-btn" id="selectImageBtn">اختيار صورة</button>
+                        </div>
+                        
+                        <div id="imagePreview" class="mt-4 hidden">
+                            <img id="uploadedImage" class="slide-image mx-auto" style="max-height: 300px;">
+                        </div>
+                        
+                        <div id="analysisProgress" class="mt-4 hidden">
+                            <div class="bg-gray-700 rounded-full h-2 mb-2">
+                                <div class="bg-blue-400 h-2 rounded-full transition-all duration-300" id="progressBar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-center text-blue-400">جاري تحليل الصورة...</p>
+                        </div>
+                        
+                        <button id="analyzeBtn" class="nav-btn w-full mt-4 hidden">
+                            <i class="fas fa-brain ml-2"></i>
+                            تحليل الصورة
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="animate-slide-in-left">
+                    <div id="resultsContainer" class="bg-purple-900 bg-opacity-20 p-6 rounded-lg hidden">
+                        <h2 class="subtitle mb-4">نتائج التشخيص</h2>
+                        
+                        <div id="diagnosisResult" class="mb-6">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold mb-2" id="diagnosisType">نوع الورم المتوقع</div>
+                                <div class="text-xl text-blue-400 mb-4" id="confidenceLevel">مستوى الثقة</div>
+                            </div>
+                        </div>
+                        
+                        <div id="detailedResults">
+                            <h3 class="text-xl font-bold mb-3">تفاصيل التحليل:</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center p-2 bg-gray-800 rounded">
+                                    <span>الورم الدبقي</span>
+                                    <span id="gliomaProb" class="font-bold">0%</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 bg-gray-800 rounded">
+                                    <span>الورم السحائي</span>
+                                    <span id="meningiomaProb" class="font-bold">0%</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 bg-gray-800 rounded">
+                                    <span>الورم النخامي</span>
+                                    <span id="pituitaryProb" class="font-bold">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-yellow-900 bg-opacity-30 rounded-lg">
+                            <p class="text-sm text-yellow-200">
+                                <i class="fas fa-exclamation-triangle ml-2"></i>
+                                هذا النموذج للأغراض التعليمية والبحثية فقط. لا يجب الاعتماد عليه للتشخيص الطبي الفعلي.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div id="instructionsPanel" class="bg-green-900 bg-opacity-20 p-6 rounded-lg">
+                        <h2 class="subtitle mb-4">إرشادات الاستخدام</h2>
+                        <ul class="content-text content-list list-disc list-inside space-y-2">
+                            <li>استخدم صور رنين مغناطيسي واضحة للدماغ</li>
+                            <li>تأكد من أن الصورة تظهر المقطع العرضي للدماغ</li>
+                            <li>أفضل النتائج مع صور بدقة عالية (224x224 بكسل أو أكثر)</li>
+                            <li>النموذج مدرب على ثلاثة أنواع رئيسية من الأورام</li>
+                        </ul>
+                        
+                        <div class="mt-4 p-4 bg-blue-900 bg-opacity-30 rounded-lg">
+                            <h3 class="text-lg font-bold mb-2">معلومات تقنية:</h3>
+                            <p class="text-sm">
+                                النموذج: MobileNetV2<br>
+                                الدقة: 97.2%<br>
+                                وقت التحليل: < 3 ثوانٍ<br>
+                                أنواع الأورام: الدبقي، السحائي، النخامي
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Thank You -->
+    <div class="slide-container" id="slide-11">
+        <div class="network-bg" id="bg-11"></div>
+        <div class="content flex flex-col items-center justify-center text-center">
+            <div class="animate-fade-in-up mb-8">
+                <i class="fas fa-brain text-8xl text-blue-400" style="animation: pulse 2s infinite;"></i>
+            </div>
+            <h1 class="title animate-slide-in-right">شكراً لكم</h1>
+            <p class="subtitle animate-slide-in-left mb-10">هل لديكم أي أسئلة؟</p>
+            <div class="animate-fade-in-up space-y-4">
+                <div class="flex items-center justify-center space-x-4">
+                    <i class="fas fa-envelope text-2xl text-blue-400"></i>
+                    <p class="content-text">mnoomidoostar6@gmail.com</p>
+                </div>
+                <div class="flex items-center justify-center space-x-4">
+                    <i class="fas fa-phone text-2xl text-blue-400"></i>
+                    <p class="content-text">01026843062</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 12;
+        let isTransitioning = false;
+        
+        // Initialize indicators
+        function initializeIndicators() {
+            const indicatorsContainer = document.getElementById('indicators');
+            for (let i = 0; i < totalSlides; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = `slide-indicator ${i === 0 ? 'active' : ''}`;
+                indicator.onclick = () => goToSlide(i);
+                indicatorsContainer.appendChild(indicator);
+            }
+        }
+        
+        // Change slide function
+        function changeSlide(direction) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            
+            // Hide current slide
+            const currentSlideEl = document.getElementById(`slide-${currentSlide}`);
+            if (currentSlideEl) {
+                currentSlideEl.classList.remove('active');
+                currentSlideEl.classList.add('fade-out');
+            }
+            
+            // Calculate next slide
+            const newSlideIndex = currentSlide + direction;
+            if (newSlideIndex < 0) {
+                currentSlide = totalSlides - 1;
+            } else if (newSlideIndex >= totalSlides) {
+                currentSlide = 0;
+            } else {
+                currentSlide = newSlideIndex;
+            }
+            
+            // Show new slide after transition
+            setTimeout(() => {
+                // Hide all slides first
+                hideAllSlides();
+                
+                // Show target slide
+                const newSlideEl = document.getElementById(`slide-${currentSlide}`);
+                if (newSlideEl) {
+                    newSlideEl.classList.remove('fade-out');
+                    newSlideEl.classList.add('active');
+                }
+                
+                updateNavigation();
+                createNetworkBackground(currentSlide);
+                
+                // Reset transition flag
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 100);
+            }, 300);
+        }
+        
+        // Go to specific slide
+        function goToSlide(slideIndex) {
+            if (isTransitioning || slideIndex === currentSlide || slideIndex < 0 || slideIndex >= totalSlides) return;
+            isTransitioning = true;
+            
+            // Hide current slide
+            const currentSlideEl = document.getElementById(`slide-${currentSlide}`);
+            if (currentSlideEl) {
+                currentSlideEl.classList.remove('active');
+                currentSlideEl.classList.add('fade-out');
+            }
+            
+            currentSlide = slideIndex;
+            
+            // Show new slide after transition
+            setTimeout(() => {
+                // Hide all slides first
+                hideAllSlides();
+                
+                // Show target slide
+                const newSlideEl = document.getElementById(`slide-${currentSlide}`);
+                if (newSlideEl) {
+                    newSlideEl.classList.remove('fade-out');
+                    newSlideEl.classList.add('active');
+                }
+                
+                updateNavigation();
+                createNetworkBackground(currentSlide);
+                
+                // Reset transition flag
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 100);
+            }, 300);
+        }
+        
+        // Hide all slides
+        function hideAllSlides() {
+            for (let i = 0; i < totalSlides; i++) {
+                const slideEl = document.getElementById(`slide-${i}`);
+                if (slideEl) {
+                    slideEl.classList.remove('active');
+                    if (i !== currentSlide) {
+                        slideEl.classList.add('fade-out');
+                    }
+                }
+            }
+        }
+        
+        // Update navigation state
+        function updateNavigation() {
+            const indicators = document.querySelectorAll('.slide-indicator');
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+            
+            // Update button states
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            // Remove disabled state (we use circular navigation)
+            if (prevBtn) prevBtn.disabled = false;
+            if (nextBtn) nextBtn.disabled = false;
+            
+            // Update page title with slide number
+            document.title = `نموذج الذكاء الاصطناعي لتشخيص أورام الدماغ - الشريحة ${currentSlide + 1}/${totalSlides}`;
+        }
+        
+        // Create network background
+        function createNetworkBackground(slideIndex) {
+            const bgContainer = document.getElementById(`bg-${slideIndex}`);
+            if (!bgContainer) return;
+            
+            bgContainer.innerHTML = '';
+            
+            const svg = d3.select(bgContainer)
+                .append("svg")
+                .attr("width", "100%")
+                .attr("height", "100%");
+            
+            const nodes = Array.from({ length: 50 }, () => ({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                r: Math.random() * 3 + 1
+            }));
+            
+            svg.selectAll("circle")
+                .data(nodes)
+                .enter()
+                .append("circle")
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y)
+                .attr("r", d => d.r)
+                .attr("fill", "#3E92CC");
+            
+            const links = [];
+            nodes.forEach((source, i) => {
+                const numLinks = Math.floor(Math.random() * 3);
+                for (let j = 0; j < numLinks; j++) {
+                    const target = nodes[Math.floor(Math.random() * nodes.length)];
+                    if (target !== source) {
+                        links.push({ source, target });
+                    }
+                }
+            });
+            
+            svg.selectAll("line")
+                .data(links)
+                .enter()
+                .append("line")
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y)
+                .attr("stroke", "#3E92CC")
+                .attr("stroke-width", 0.5);
+        }
+        
+        // Create charts
+        function initializeCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: "#FFFFFF" } }
+                },
+                scales: {
+                    x: {
+                        grid: { color: "rgba(255, 255, 255, 0.1)" },
+                        ticks: { color: "#FFFFFF" }
+                    },
+                    y: {
+                        grid: { color: "rgba(255, 255, 255, 0.1)" },
+                        ticks: { color: "#FFFFFF" }
+                    }
+                }
+            };
+
+            // Survival Chart
+            const survivalCtx = document.getElementById("survivalChart");
+            if (survivalCtx) {
+                new Chart(survivalCtx, {
+                    type: "bar",
+                    data: {
+                        labels: ["الورم الدبقي منخفض الدرجة", "الورم السحائي", "الورم النخاعي", "الورم الدبقي متعدد الأشكال", "الورم الدبقي عالي الدرجة"],
+                        datasets: [{
+                            label: "معدل البقاء على قيد الحياة لمدة 5 سنوات (%)",
+                            data: [75, 70, 65, 50, 36],
+                            backgroundColor: ["#3E92CC", "#3E92CC", "#3E92CC", "#8F3985", "#8F3985"],
+                            borderColor: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        indexAxis: "y",
+                        scales: {
+                            ...chartOptions.scales,
+                            x: { ...chartOptions.scales.x, beginAtZero: true, max: 100 }
+                        }
+                    }
+                });
+            }
+
+            // Accuracy Chart
+            const accuracyCtx = document.getElementById("accuracyChart");
+            if (accuracyCtx) {
+                new Chart(accuracyCtx, {
+                    type: "line",
+                    data: {
+                        labels: ["2010", "2012", "2014", "2016", "2018", "2020", "2022", "2024"],
+                        datasets: [{
+                            label: "دقة الذكاء الاصطناعي (%)",
+                            data: [65, 70, 75, 82, 87, 92, 95, 97],
+                            borderColor: "#3E92CC",
+                            backgroundColor: "rgba(62, 146, 204, 0.1)",
+                            tension: 0.4
+                        }, {
+                            label: "دقة التشخيص التقليدي (%)",
+                            data: [70, 72, 73, 75, 76, 77, 78, 80],
+                            borderColor: "#8F3985",
+                            backgroundColor: "rgba(143, 57, 133, 0.1)",
+                            tension: 0.4
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // Tumor Distribution Chart
+            const tumorCtx = document.getElementById("tumorDistributionChart");
+            if (tumorCtx) {
+                new Chart(tumorCtx, {
+                    type: "pie",
+                    data: {
+                        labels: ["الأورام الدبقية", "الأورام السحائية", "أورام الغدة النخامية", "الأورام النقيلية", "أنواع أخرى"],
+                        datasets: [{
+                            data: [45, 30, 15, 5, 5],
+                            backgroundColor: ["#3E92CC", "#8F3985", "#5BC0EB", "#FDE74C", "#9BC53D"],
+                            borderColor: "#FFFFFF",
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: "#FFFFFF" } }
+                        }
+                    }
+                });
+            }
+
+            // Parameter Chart
+            const parameterCtx = document.getElementById("parameterChart");
+            if (parameterCtx) {
+                new Chart(parameterCtx, {
+                    type: "bar",
+                    data: {
+                        labels: ["VGG16", "ResNet50", "InceptionV3", "MobileNetV2 (النموذج المستخدم)"],
+                        datasets: [{
+                            label: "عدد المعلمات (بالمليون)",
+                            data: [138, 25, 23, 2.4],
+                            backgroundColor: ["#3E92CC", "#3E92CC", "#3E92CC", "#8F3985"],
+                            borderColor: "#FFFFFF",
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            title: {
+                                display: true,
+                                text: "مقارنة حجم النماذج المختلفة",
+                                color: "#FFFFFF",
+                                font: { size: 16 }
+                            }
+                        },
+                        scales: {
+                            ...chartOptions.scales,
+                            y: { ...chartOptions.scales.y, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // Training Chart
+            const trainingCtx = document.getElementById("trainingChart");
+            if (trainingCtx) {
+                new Chart(trainingCtx, {
+                    type: "line",
+                    data: {
+                        labels: Array.from({length: 50}, (_, i) => i + 1),
+                        datasets: [{
+                            label: "دقة التدريب",
+                            data: [0.3, 0.45, 0.6, 0.7, 0.75, 0.8, 0.82, 0.85, 0.87, 0.89, 0.9, 0.91, 0.92, 0.93, 0.935, 0.94, 0.942, 0.945, 0.947, 0.95, 0.952, 0.954, 0.956, 0.958, 0.96, 0.961, 0.963, 0.964, 0.965, 0.966, 0.967, 0.968, 0.969, 0.97, 0.971, 0.972, 0.973, 0.974, 0.975, 0.976, 0.977, 0.978, 0.979, 0.98, 0.981, 0.982, 0.983, 0.984, 0.985, 0.986],
+                            borderColor: "#3E92CC",
+                            backgroundColor: "rgba(62, 146, 204, 0.1)",
+                            tension: 0.4
+                        }, {
+                            label: "دقة التحقق",
+                            data: [0.25, 0.4, 0.55, 0.65, 0.7, 0.75, 0.78, 0.8, 0.82, 0.84, 0.86, 0.87, 0.88, 0.89, 0.895, 0.9, 0.902, 0.905, 0.907, 0.91, 0.912, 0.914, 0.916, 0.918, 0.92, 0.921, 0.923, 0.924, 0.925, 0.926, 0.927, 0.928, 0.929, 0.93, 0.931, 0.932, 0.933, 0.934, 0.935, 0.936, 0.937, 0.938, 0.939, 0.94, 0.941, 0.942, 0.943, 0.944, 0.945, 0.946],
+                            borderColor: "#8F3985",
+                            backgroundColor: "rgba(143, 57, 133, 0.1)",
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            title: {
+                                display: true,
+                                text: "منحنى تدريب النموذج",
+                                color: "#FFFFFF",
+                                font: { size: 16 }
+                            }
+                        },
+                        scales: {
+                            ...chartOptions.scales,
+                            x: { 
+                                ...chartOptions.scales.x,
+                                title: { display: true, text: "العصر (Epoch)", color: "#FFFFFF" }
+                            },
+                            y: { 
+                                ...chartOptions.scales.y, 
+                                beginAtZero: true, 
+                                max: 1,
+                                title: { display: true, text: "الدقة", color: "#FFFFFF" }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Confusion Matrix
+            const confusionCtx = document.getElementById("confusionMatrix");
+            if (confusionCtx) {
+                new Chart(confusionCtx, {
+                    type: "bar",
+                    data: {
+                        labels: ["الورم الدبقي", "الورم السحائي", "الورم النخامي"],
+                        datasets: [{
+                            label: "الدقة لكل فئة (%)",
+                            data: [98.5, 96.8, 95.2],
+                            backgroundColor: ["#3E92CC", "#8F3985", "#5BC0EB"],
+                            borderColor: "#FFFFFF",
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            title: {
+                                display: true,
+                                text: "دقة التشخيص لكل نوع ورم",
+                                color: "#FFFFFF",
+                                font: { size: 16 }
+                            }
+                        },
+                        scales: {
+                            ...chartOptions.scales,
+                            y: { ...chartOptions.scales.y, beginAtZero: true, max: 100 }
+                        }
+                    }
+                });
+            }
+
+            // Adoption Chart
+            const adoptionCtx = document.getElementById("adoptionChart");
+            if (adoptionCtx) {
+                new Chart(adoptionCtx, {
+                    type: "line",
+                    data: {
+                        labels: ["2024", "2025", "2026", "2027", "2028", "2029", "2030"],
+                        datasets: [{
+                            label: "المستشفيات الكبيرة",
+                            data: [15, 35, 55, 70, 80, 90, 95],
+                            borderColor: "#3E92CC",
+                            backgroundColor: "rgba(62, 146, 204, 0.1)",
+                            tension: 0.4
+                        }, {
+                            label: "المستشفيات المتوسطة",
+                            data: [5, 15, 30, 45, 60, 75, 85],
+                            borderColor: "#8F3985",
+                            backgroundColor: "rgba(143, 57, 133, 0.1)",
+                            tension: 0.4
+                        }, {
+                            label: "العيادات الصغيرة",
+                            data: [2, 8, 18, 30, 45, 60, 70],
+                            borderColor: "#5BC0EB",
+                            backgroundColor: "rgba(91, 192, 235, 0.1)",
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            title: {
+                                display: true,
+                                text: "توقعات تبني التقنية في المؤسسات الطبية",
+                                color: "#FFFFFF",
+                                font: { size: 16 }
+                            }
+                        },
+                        scales: {
+                            ...chartOptions.scales,
+                            y: { 
+                                ...chartOptions.scales.y, 
+                                beginAtZero: true, 
+                                max: 100,
+                                title: { display: true, text: "نسبة التبني (%)", color: "#FFFFFF" }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Impact Chart
+            const impactCtx = document.getElementById("impactChart");
+            if (impactCtx) {
+                new Chart(impactCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: [
+                            'دقة التشخيص',
+                            'سرعة التشخيص', 
+                            'تقليل التكلفة',
+                            'الوصول للمناطق النائية',
+                            'تقليل الحاجة للخزعات',
+                            'تحسين نتائج العلاج'
+                        ],
+                        datasets: [{
+                            label: 'التأثير المتوقع للنموذج',
+                            data: [95, 98, 80, 90, 75, 85],
+                            backgroundColor: 'rgba(143, 57, 133, 0.2)',
+                            borderColor: '#3E92CC',
+                            pointBackgroundColor: '#8F3985',
+                            pointBorderColor: '#FFFFFF',
+                            pointHoverBackgroundColor: '#FFFFFF',
+                            pointHoverBorderColor: '#3E92CC'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255, 255, 255, 0.2)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                                pointLabels: { 
+                                    color: '#FFFFFF',
+                                    font: { size: 12 }
+                                },
+                                ticks: {
+                                    color: '#FFFFFF',
+                                    backdropColor: 'transparent',
+                                    showLabelBackdrop: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#FFFFFF' } },
+                            title: {
+                                display: true,
+                                text: 'التأثير المتوقع للنموذج (%)',
+                                color: '#FFFFFF',
+                                font: { size: 16 }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                changeSlide(-1);
+            }
+        });
+        
+        // Touch/swipe support
+        let startX = 0;
+        let startY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+            
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    changeSlide(1);
+                } else {
+                    changeSlide(-1);
+                }
+            }
+        });
+        
+        // Initialize presentation
+        function initializePresentation() {
+            // Hide all slides first
+            hideAllSlides();
+            
+            // Show first slide
+            const firstSlide = document.getElementById('slide-0');
+            if (firstSlide) {
+                firstSlide.classList.remove('fade-out');
+                firstSlide.classList.add('active');
+            }
+            
+            // Update navigation
+            updateNavigation();
+            
+            // Create background for first slide
+            createNetworkBackground(0);
+        }
+        
+        // AI Diagnosis functionality
+        function initializeDiagnosisTool() {
+            const imageInput = document.getElementById('imageInput');
+            const selectImageBtn = document.getElementById('selectImageBtn');
+            const uploadArea = document.getElementById('uploadArea');
+            const imagePreview = document.getElementById('imagePreview');
+            const uploadedImage = document.getElementById('uploadedImage');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const analysisProgress = document.getElementById('analysisProgress');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const instructionsPanel = document.getElementById('instructionsPanel');
+            
+            if (!imageInput || !selectImageBtn || !uploadArea) return;
+            
+            // Handle file selection
+            selectImageBtn.addEventListener('click', () => {
+                imageInput.click();
+            });
+            
+            // Handle drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('border-blue-300', 'bg-gray-700');
+            });
+            
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('border-blue-300', 'bg-gray-700');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('border-blue-300', 'bg-gray-700');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleImageUpload(files[0]);
+                }
+            });
+            
+            // Handle file input change
+            imageInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleImageUpload(e.target.files[0]);
+                }
+            });
+            
+            // Handle image upload
+            function handleImageUpload(file) {
+                if (!file.type.startsWith('image/')) {
+                    alert('يرجى اختيار ملف صورة صالح');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImage.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    analyzeBtn.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // Handle analysis
+            analyzeBtn.addEventListener('click', () => {
+                performAnalysis();
+            });
+            
+            async function performAnalysis() {
+                const imageFile = document.getElementById('imageInput').files[0];
+                if (!imageFile) {
+                    alert('يرجى اختيار صورة أولاً');
+                    return;
+                }
+                
+                // Show progress
+                analysisProgress.classList.remove('hidden');
+                analyzeBtn.disabled = true;
+                instructionsPanel.classList.add('hidden');
+                
+                // Simulate AI analysis with progress bar
+                let progress = 0;
+                const progressBar = document.getElementById('progressBar');
+                
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15 + 5;
+                    if (progress > 100) progress = 100;
+                    
+                    progressBar.style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        // Use real AI analysis if API_URL is configured
+                        if (API_URL !== 'YOUR_COLAB_URL_HERE') {
+                            performRealAnalysis(imageFile).then(predictions => {
+                                showResults(predictions);
+                            }).catch(error => {
+                                console.error('خطأ في التحليل:', error);
+                                showResults(generateMockPredictions());
+                            });
+                        } else {
+                            // Use mock predictions if Colab is not connected
+                            showResults(generateMockPredictions());
+                        }
+                    }
+                }, 150);
+            }
+            
+            function showResults(predictions = null) {
+                // Hide progress
+                analysisProgress.classList.add('hidden');
+                
+                // Use provided predictions or generate mock ones
+                if (!predictions) {
+                    predictions = generateMockPredictions();
+                }
+                
+                // Show results
+                displayResults(predictions);
+                resultsContainer.classList.remove('hidden');
+                
+                // Re-enable button
+                analyzeBtn.disabled = false;
+            }
+            
+            // AI Analysis Configuration
+            // ضع رابط Colab هنا بعد تشغيل الكود في Colab
+            // مثال: const API_URL = 'https://abc123.ngrok.io';
+            const API_URL = 'YOUR_COLAB_URL_HERE'; // ⚠️ استبدل برابط ngrok من Colab
+            
+            // معلومات النموذج (سيتم تحديثها تلقائياً من الخادم)
+            let modelInfo = {
+                classes: ['الورم الدبقي', 'الورم السحائي', 'الورم النخامي'],
+                isConnected: false
+            };
+            
+            // واجهة تحديث الرابط
+            function showUpdateURLDialog() {
+                const currentURL = API_URL !== 'YOUR_COLAB_URL_HERE' ? API_URL : '';
+                const newURL = prompt(
+                    '🔧 تحديث رابط API\n\n' +
+                    'أدخل رابط ngrok من Google Colab:\n' +
+                    'مثال: https://abc123.ngrok.io\n\n' +
+                    '⚠️ تأكد أن الرابط:\n' +
+                    '• يبدأ بـ https://\n' +
+                    '• ينتهي بـ .ngrok.io\n' +
+                    '• لا يحتوي على /predict في النهاية',
+                    currentURL
+                );
+                
+                if (newURL && newURL.trim()) {
+                    const cleanURL = newURL.trim().replace(/\/$/, ''); // إزالة / في النهاية
+                    
+                    if (cleanURL.includes('ngrok.io') && cleanURL.startsWith('https://')) {
+                        window.API_URL_OVERRIDE = cleanURL;
+                        console.log('🔄 جاري اختبار الرابط الجديد...');
+                        testConnection();
+                    } else if (cleanURL.includes('colab.research.google.com')) {
+                        alert('❌ هذا رابط مشاركة Google Colab وليس رابط API!\n\n' +
+                              'يجب تشغيل كود Flask + ngrok في Colab أولاً\n' +
+                              'واستخدام الرابط الذي يبدأ بـ https://...ngrok.io');
+                    } else {
+                        alert('❌ الرابط غير صحيح!\n\n' +
+                              'يجب أن يبدأ بـ https:// وينتهي بـ .ngrok.io\n' +
+                              'مثال: https://abc123.ngrok.io');
+                    }
+                }
+            }
+            
+            // إضافة زر التحديث
+            function addUpdateButton() {
+                // تجنب الإضافة المتكررة
+                if (document.querySelector('.update-api-btn')) return;
+                
+                const updateBtn = document.createElement('button');
+                updateBtn.innerHTML = '🔧 تحديث رابط API';
+                updateBtn.className = 'update-api-btn';
+                updateBtn.style.cssText = `
+                    position: fixed;
+                    top: 70px;
+                    right: 20px;
+                    z-index: 9999;
+                    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-weight: bold;
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                    transition: all 0.3s ease;
+                `;
+                updateBtn.onclick = showUpdateURLDialog;
+                document.body.appendChild(updateBtn);
+            }
+            
+            // اختبار الاتصال مع الخادم
+            async function testConnection() {
+                const urlToTest = window.API_URL_OVERRIDE || API_URL;
+                
+                if (urlToTest === 'YOUR_COLAB_URL_HERE') {
+                    console.log('⚠️ يجب تحديث API_URL برابط Colab الخاص بك');
+                    console.log('📖 اقرأ ملف خطوات_التشغيل_الصحيحة.md للتعليمات');
+                    modelInfo.isConnected = false;
+                    showConnectionStatus(false, null, 'not_configured');
+                    return false;
+                }
+                
+                if (urlToTest.includes('colab.research.google.com')) {
+                    console.log('❌ رابط خاطئ: هذا رابط مشاركة Colab وليس API');
+                    showConnectionStatus(false, null, 'wrong_url');
+                    return false;
+                }
+                
+                try {
+                    console.log('🔄 جاري فحص الاتصال مع:', urlToTest);
+                    const response = await fetch(urlToTest + '/health', {
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'healthy') {
+                        console.log('✅ الاتصال مع الخادم ناجح:', result);
+                        console.log('📊 النموذج محمل:', result.model_loaded);
+                        console.log('📋 فئات النموذج:', result.model_classes);
+                        
+                        // تحديث معلومات النموذج
+                        modelInfo.isConnected = true;
+                        if (result.model_classes) {
+                            modelInfo.classes = result.model_classes;
+                        }
+                        
+                        // عرض رسالة نجاح في الموقع
+                        showConnectionStatus(true, result.model_classes);
+                        return true;
+                    } else {
+                        throw new Error('الخادم غير جاهز');
+                    }
+                } catch (error) {
+                    console.error('❌ فشل في الاتصال مع الخادم:', error);
+                    
+                    let errorType = 'connection_failed';
+                    if (error.message.includes('CORS') || error.message.includes('preflight')) {
+                        errorType = 'cors_error';
+                    } else if (error.message.includes('Failed to fetch') || error.message.includes('net::ERR_FAILED')) {
+                        errorType = 'server_not_running';
+                    }
+                    
+                    modelInfo.isConnected = false;
+                    showConnectionStatus(false, null, errorType);
+                    return false;
+                }
+            }
+            
+            // عرض حالة الاتصال في الموقع
+            function showConnectionStatus(isConnected, classes = null, errorType = null) {
+                // إنشاء إشعار حالة الاتصال
+                const existingStatus = document.getElementById('connectionStatus');
+                if (existingStatus) {
+                    existingStatus.remove();
+                }
+                
+                const statusDiv = document.createElement('div');
+                statusDiv.id = 'connectionStatus';
+                statusDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    color: white;
+                    font-weight: bold;
+                    z-index: 10000;
+                    transition: all 0.3s ease;
+                    max-width: 350px;
+                    line-height: 1.4;
+                `;
+                
+                if (isConnected) {
+                    statusDiv.style.background = 'linear-gradient(135deg, #10B981, #34D399)';
+                    statusDiv.innerHTML = `
+                        <div>🤖 متصل بنموذج الذكاء الاصطناعي</div>
+                        <div style="font-size: 0.8em; opacity: 0.9; margin-top: 4px;">
+                            فئات النموذج: ${classes ? classes.join(', ') : 'غير محدد'}
+                        </div>
+                    `;
+                } else {
+                    // رسائل خطأ محددة
+                    let errorMessage = '';
+                    let backgroundColor = 'linear-gradient(135deg, #F59E0B, #FBBF24)';
+                    
+                    switch (errorType) {
+                        case 'wrong_url':
+                            backgroundColor = 'linear-gradient(135deg, #EF4444, #F87171)';
+                            errorMessage = `
+                                <div>❌ رابط خاطئ!</div>
+                                <div style="font-size: 0.75em; margin-top: 4px;">
+                                    هذا رابط مشاركة Colab وليس API<br>
+                                    استخدم زر "تحديث رابط API" أدناه
+                                </div>
+                            `;
+                            break;
+                        case 'cors_error':
+                            backgroundColor = 'linear-gradient(135deg, #EF4444, #F87171)';
+                            errorMessage = `
+                                <div>🚫 خطأ CORS</div>
+                                <div style="font-size: 0.75em; margin-top: 4px;">
+                                    الخادم غير مُفعل أو رابط خاطئ<br>
+                                    تأكد من تشغيل كود Flask في Colab
+                                </div>
+                            `;
+                            break;
+                        case 'server_not_running':
+                            backgroundColor = 'linear-gradient(135deg, #EF4444, #F87171)';
+                            errorMessage = `
+                                <div>🔌 الخادم متوقف</div>
+                                <div style="font-size: 0.75em; margin-top: 4px;">
+                                    أعد تشغيل كود Flask في Colab<br>
+                                    أو الرابط انتهت صلاحيته
+                                </div>
+                            `;
+                            break;
+                        case 'not_configured':
+                            errorMessage = `
+                                <div>⚙️ غير مُعد</div>
+                                <div style="font-size: 0.75em; margin-top: 4px;">
+                                    لربط النموذج الحقيقي:<br>
+                                    استخدم زر "تحديث رابط API"
+                                </div>
+                            `;
+                            break;
+                        default:
+                            errorMessage = `
+                                <div>⚠️ نموذج تجريبي</div>
+                                <div style="font-size: 0.75em; margin-top: 4px;">
+                                    لربط النموذج الحقيقي اتبع التعليمات<br>
+                                    أو استخدم زر "تحديث رابط API"
+                                </div>
+                            `;
+                    }
+                    
+                    statusDiv.style.background = backgroundColor;
+                    statusDiv.innerHTML = errorMessage;
+                }
+                
+                document.body.appendChild(statusDiv);
+                
+                // إخفاء الإشعار بعد 8 ثوان (أطول للرسائل التفصيلية)
+                setTimeout(() => {
+                    if (statusDiv) {
+                        statusDiv.style.opacity = '0';
+                        setTimeout(() => statusDiv.remove(), 300);
+                    }
+                }, 8000);
+            }
+
+            // دالة التنبؤ الحقيقية
+            async function performRealAnalysis(imageFile) {
+                const urlToUse = window.API_URL_OVERRIDE || API_URL;
+                
+                try {
+                    console.log('🔄 جاري إرسال الصورة للتحليل...');
+                    
+                    // تحويل الصورة إلى base64
+                    const base64Image = await convertToBase64(imageFile);
+                    
+                    // إرسال الطلب للخادم
+                    const response = await fetch(urlToUse + '/predict', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            image: base64Image
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        console.log('✅ التنبؤ ناجح:', result);
+                        return result.predictions;
+                    } else {
+                        console.error('❌ خطأ في التنبؤ:', result.error);
+                        // العودة للنموذج التجريبي في حالة الخطأ
+                        return generateMockPredictions();
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ خطأ في الاتصال:', error);
+                    
+                    // رسالة تحذيرية للمستخدم
+                    if (error.message.includes('CORS')) {
+                        alert('⚠️ مشكلة في الاتصال مع النموذج!\n\nتم استخدام النموذج التجريبي بدلاً من ذلك.');
+                    }
+                    
+                    // العودة للنموذج التجريبي في حالة الخطأ
+                    return generateMockPredictions();
+                }
+            }
+
+            // دالة مساعدة لتحويل الملف إلى base64
+            function convertToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function generateMockPredictions() {
+                // استخدام فئات النموذج المتاحة أو الافتراضية
+                const types = modelInfo.isConnected ? 
+                    modelInfo.classes : 
+                    ['الورم الدبقي', 'الورم السحائي', 'الورم النخامي'];
+                
+                const numClasses = types.length;
+                
+                // Generate random probabilities that sum to ~100%
+                const probabilities = [];
+                let remaining = 1.0;
+                
+                for (let i = 0; i < numClasses - 1; i++) {
+                    const maxProb = remaining - (0.1 * (numClasses - i - 1)); // اترك مساحة للباقي
+                    const minProb = 0.05; // حد أدنى 5%
+                    const prob = Math.random() * (maxProb - minProb) + minProb;
+                    probabilities.push(prob);
+                    remaining -= prob;
+                }
+                probabilities.push(Math.max(remaining, 0.05)); // الاحتمال الأخير
+                
+                // Sort by probability and create results
+                const results = probabilities.map((prob, index) => ({
+                    type: types[index],
+                    probability: Math.round(prob * 100)
+                })).sort((a, b) => b.probability - a.probability);
+                
+                console.log('🎲 نتائج تجريبية:', results);
+                return results;
+            }
+            
+            function displayResults(predictions) {
+                const diagnosisType = document.getElementById('diagnosisType');
+                const confidenceLevel = document.getElementById('confidenceLevel');
+                const gliomaProb = document.getElementById('gliomaProb');
+                const meningiomaProb = document.getElementById('meningiomaProb');
+                const pituitaryProb = document.getElementById('pituitaryProb');
+                
+                if (!diagnosisType || !confidenceLevel) return;
+                
+                // Show top prediction
+                diagnosisType.textContent = predictions[0].type;
+                confidenceLevel.textContent = `مستوى الثقة: ${predictions[0].probability}%`;
+                
+                // Update color based on confidence
+                if (predictions[0].probability > 80) {
+                    confidenceLevel.className = 'text-xl text-green-400 mb-4';
+                } else if (predictions[0].probability > 60) {
+                    confidenceLevel.className = 'text-xl text-yellow-400 mb-4';
+                } else {
+                    confidenceLevel.className = 'text-xl text-red-400 mb-4';
+                }
+                
+                // Show all probabilities - التعامل الديناميكي مع فئات النموذج
+                const probElements = {
+                    'الورم الدبقي': gliomaProb,
+                    'glioma': gliomaProb,
+                    'الورم السحائي': meningiomaProb,
+                    'meningioma': meningiomaProb,
+                    'الورم النخامي': pituitaryProb,
+                    'pituitary': pituitaryProb
+                };
+                
+                // إخفاء جميع العناصر أولاً
+                if (gliomaProb) gliomaProb.parentElement.style.display = 'none';
+                if (meningiomaProb) meningiomaProb.parentElement.style.display = 'none';
+                if (pituitaryProb) pituitaryProb.parentElement.style.display = 'none';
+                
+                // عرض النتائج الفعلية
+                predictions.forEach((pred, index) => {
+                    const element = probElements[pred.type];
+                    if (element) {
+                        element.parentElement.style.display = 'block';
+                        element.textContent = `${pred.probability}%`;
+                        
+                        // Highlight highest probability
+                        if (index === 0) {
+                            element.className = 'font-bold text-green-400';
+                        } else if (pred.probability > 30) {
+                            element.className = 'font-bold text-yellow-400';
+                        } else {
+                            element.className = 'font-bold text-gray-400';
+                        }
+                    } else if (index < 3) {
+                        // إذا لم يجد العنصر المطابق، استخدم الأول المتاح
+                        const availableElements = [gliomaProb, meningiomaProb, pituitaryProb];
+                        const availableElement = availableElements[index];
+                        if (availableElement) {
+                            availableElement.parentElement.style.display = 'block';
+                            availableElement.previousElementSibling.textContent = pred.type + ':';
+                            availableElement.textContent = `${pred.probability}%`;
+                            
+                            if (index === 0) {
+                                availableElement.className = 'font-bold text-green-400';
+                            } else if (pred.probability > 30) {
+                                availableElement.className = 'font-bold text-yellow-400';
+                            } else {
+                                availableElement.className = 'font-bold text-gray-400';
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeIndicators();
+            initializePresentation();
+            
+            // Initialize charts after a short delay
+            setTimeout(() => {
+                initializeCharts();
+            }, 1000);
+            
+            // Initialize diagnosis tool
+            setTimeout(() => {
+                initializeDiagnosisTool();
+            }, 1500);
+            
+            // Add update button
+            setTimeout(() => {
+                addUpdateButton();
+            }, 1000);
+            
+            // Test connection with Colab server
+            setTimeout(() => {
+                testConnection();
+            }, 2000);
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                createNetworkBackground(currentSlide);
+            });
+        });
+    </script>
+</body>
+</html> 

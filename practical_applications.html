@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التطبيقات العملية والمستقبلية</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+      
+      body {
+        font-family: 'Tajawal', sans-serif;
+        direction: rtl;
+        text-align: right;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0A2463;
+        color: #FFFFFF;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      
+      .subtitle {
+        font-size: 24px;
+        font-weight: 500;
+        color: #3E92CC;
+      }
+      
+      .content-text {
+        font-size: 20px;
+        line-height: 1.6;
+      }
+      
+      .network-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.1;
+        z-index: 0;
+      }
+      
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .highlight {
+        color: #8F3985;
+        font-weight: 500;
+      }
+      
+      .application-box {
+        border-right: 3px solid #3E92CC;
+        padding-right: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+      }
+      
+      .application-box:hover {
+        border-right-color: #8F3985;
+        background-color: rgba(62, 146, 204, 0.1);
+      }
+      
+      .future-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      
+      .future-icon {
+        color: #3E92CC;
+        font-size: 24px;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container flex flex-col p-10">
+      <div class="network-bg">
+        <!-- Background network pattern will be created with D3.js -->
+      </div>
+      
+      <div class="content w-full h-full flex flex-col">
+        <h1 class="title mb-3 text-center">التطبيقات العملية والمستقبلية</h1>
+        
+        <div class="flex flex-grow justify-evenly">
+          <div class="w-1/2 pr-6">
+            <h2 class="subtitle mb-2">كيفية استخدام النموذج في المستشفيات</h2>
+            
+            <div class="application-box p-2">
+              <h3 class="text-xl font-bold text-white">نظام دعم القرار الطبي</h3>
+              <p class="content-text">دمج النموذج كأداة مساعدة للأطباء في تحليل صور الرنين المغناطيسي وتقديم تشخيص أولي سريع.</p>
+            </div>
+            
+            <div class="application-box p-2">
+              <h3 class="text-xl font-bold text-white">الفرز والتصنيف الأولي</h3>
+              <p class="content-text">استخدام النموذج لفرز الحالات حسب الأولوية، مما يسمح بتوجيه الموارد الطبية للحالات الأكثر خطورة.</p>
+            </div>
+            
+            <div class="application-box p-2">
+              <h3 class="text-xl font-bold text-white">التشخيص عن بعد</h3>
+              <p class="content-text">تمكين المستشفيات في المناطق النائية من الحصول على تشخيص دقيق دون الحاجة لوجود أخصائي أورام دماغ.</p>
+            </div>
+            
+            <h2 class="subtitle mt-4 mb-2">التكامل مع أنظمة التصوير الطبي</h2>
+            <p class="content-text">
+              يمكن دمج النموذج مباشرة مع أجهزة التصوير بالرنين المغناطيسي (MRI) وأنظمة الأرشفة ونقل الصور (PACS) لتوفير تحليل فوري للصور الجديدة.
+            </p>
+          </div>
+          
+          <div class="w-1/2 flex flex-col">
+            <div style="height: 300px;">
+              <canvas id="adoptionChart"></canvas>
+            </div>
+            
+            <h2 class="subtitle mt-4 mb-2">التطورات المستقبلية المحتملة</h2>
+            
+            <div class="future-item">
+              <i class="fas fa-dna future-icon"></i>
+              <div>
+                <h3 class="text-xl font-bold text-white">دمج البيانات الجينية</h3>
+                <p class="content-text">تطوير نماذج تجمع بين تحليل الصور والبيانات الجينية للمريض لتشخيص أكثر دقة.</p>
+              </div>
+            </div>
+            
+            <div class="future-item">
+              <i class="fas fa-mobile-alt future-icon"></i>
+              <div>
+                <h3 class="text-xl font-bold text-white">تطبيقات الهاتف المحمول</h3>
+                <p class="content-text">تطوير تطبيقات محمولة تسمح للأطباء بتحليل الصور وتلقي النتائج في أي مكان.</p>
+              </div>
+            </div>
+            
+            <div class="future-item">
+              <i class="fas fa-robot future-icon"></i>
+              <div>
+                <h3 class="text-xl font-bold text-white">التكامل مع الجراحة الروبوتية</h3>
+                <p class="content-text">استخدام النموذج لتوجيه الروبوتات الجراحية أثناء عمليات استئصال الأورام.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Create network background
+      const svg = d3.select(".network-bg")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
+      
+      // Generate random nodes
+      const nodes = Array.from({ length: 50 }, () => ({
+        x: Math.random() * 1280,
+        y: Math.random() * 720,
+        r: Math.random() * 3 + 1
+      }));
+      
+      // Draw nodes
+      svg.selectAll("circle")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.r)
+        .attr("fill", "#3E92CC");
+      
+      // Generate random connections
+      const links = [];
+      nodes.forEach((source, i) => {
+        const numLinks = Math.floor(Math.random() * 3);
+        for (let j = 0; j < numLinks; j++) {
+          const target = nodes[Math.floor(Math.random() * nodes.length)];
+          if (target !== source) {
+            links.push({ source, target });
+          }
+        }
+      });
+      
+      // Draw connections
+      svg.selectAll("line")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y)
+        .attr("stroke", "#3E92CC")
+        .attr("stroke-width", 0.5);
+      
+      // Create adoption forecast chart
+      const ctx = document.getElementById('adoptionChart').getContext('2d');
+      const adoptionChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['2025', '2026', '2027', '2028', '2029', '2030'],
+          datasets: [
+            {
+              label: 'المستشفيات الجامعية',
+              data: [15, 35, 60, 75, 85, 95],
+              borderColor: '#3E92CC',
+              backgroundColor: 'rgba(62, 146, 204, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'المستشفيات العامة',
+              data: [5, 15, 30, 50, 70, 85],
+              borderColor: '#8F3985',
+              backgroundColor: 'rgba(143, 57, 133, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'العيادات الخاصة',
+              data: [2, 10, 20, 35, 55, 75],
+              borderColor: '#5BC0EB',
+              backgroundColor: 'rgba(91, 192, 235, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              },
+              ticks: {
+                color: '#FFFFFF',
+                callback: function(value) {
+                  return value + '%';
+                }
+              },
+              title: {
+                display: true,
+                text: 'نسبة التبني (%)',
+                color: '#FFFFFF'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: '#FFFFFF'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#FFFFFF'
+              }
+            },
+            title: {
+              display: true,
+              text: 'توقعات تبني التقنية في المؤسسات الطبية',
+              color: '#FFFFFF',
+              font: {
+                size: 16
+              }
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+
